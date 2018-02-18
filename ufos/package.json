@@ -3,8 +3,13 @@
     "description": "ufos app",
     "version": "0.0.1",
     "private": true,
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.ccs.neu.edu/emilydutile/info-viz-ufos"
+    },
+    "authors": "Abby, Emily, Lydia, Peter",
     "dependencies": {
         "express": "3.4.2",
-        "d3": "4.13.0"
+        "d3": "^4.10.0"
     }
 }
