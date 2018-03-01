@@ -24,7 +24,7 @@ easy was it to download / use API? What is the format of the data? What are the
 items and attributes in your dataset? What types of data are you working with
 (categorical, ordinal, quantitative)?}\\
 
-We acquired the data easily from the Reporting Database of the National UFO Reporting Center's website\footnote{Raw Data: \url{http://www.nuforc.org/webreports.html}}. The reports are organized in tables which can be accessed by the following indices: Event Date, State, Shape, Date Posted. When organized by dates, the website provides one table for each month. We downloaded the tables for each month of 2017 into one excel sheet. Since the report form of the website mostly provides the user with a specific set of options for each question, the data set was relatively clean. The attributes of each item, i.e. report, are:
+We acquired the data easily from the Reporting Database of the National UFO Reporting Center's website\footnote{Raw Data: \url{http://www.nuforc.org/webreports.html}}. The reports are organized in tables which can be accessed by the following indices: Event Date, State, Shape, Date Posted. When organized by dates, the website provides one table for each month. We downloaded the tables for each year into one excel sheet. Since the report form of the website mostly provides the user with a specific set of options for each question, the data set was relatively clean. The attributes of each item, i.e. report, are:
 
 \begin{description}
   \item[$\bullet$ Date] (date and time of sighting) - quantitative
@@ -36,7 +36,7 @@ We acquired the data easily from the Reporting Database of the National UFO Repo
   \item[$\bullet$ Date Posted] (date the report was posted) - quantitative
 \end{description}
 
-We note that there are missing values in the attributes Shape and Duration. We only kept the reports regarding sightings in the US since there were only a few reports outside the US and we can assume that these areas would not be well represented. After this, we are left with 4593 reports. We fixed a few obvious mistakes on the states probably caused by miss-clicking the state close to the right one on the drop-down menu. We changed all the craft shapes with value ``Unknown" to missing values, assuming that a missing value and an ``Unknown" value essentially mean the same thing. Finally, since we intend to use Duration as a quantitative attribute, we used the information of the text to derive the duration of the sighting in minutes. For this last part, we used the mean of a range to give a single number of minutes and we had to make some assumptions as to what people perceive as ``a few minutes" or ``several hours" for example. We believe that these assumptions do not alter the data significantly and would not affect our visualizations.
+We noticed that there are some missing values in the attributes Shape and Duration. We only kept the reports regarding sightings in the US since there were only a few reports outside the US and we can assume that these areas would not be well represented. After this, we are left with 4593 reports. We fixed a few obvious mistakes on the states probably caused by miss-clicking the state close to the right one on the drop-down menu. We changed all the craft shapes with value ``Unknown" to missing values, assuming that a missing value and an ``Unknown" value essentially mean the same thing. Finally, since we intend to use Duration as a quantitative attribute, we used the information of the text to derive the duration of the sighting in minutes. For this last part, we used the mean of a range to give a single number of minutes and we had to make some assumptions as to what people perceive as ``a few minutes" or ``several hours" for example. We believe that these assumptions do not alter the data significantly and would not affect our visualizations.
 
 
 \section*{2 Exploring the data}
@@ -70,11 +70,11 @@ user wants to accomplish with the data using your visualization) and translate t
  Task & Abstraction & Level \\ [0.5ex]
 \hline % inserts single-line
 
-Observe how the UFO \\sightings occur throughout the year &
+Observe how the UFO \\sightings occur throughout the years &
 Analyze/Consume/Present &
 High \\[1ex] %space
 
-Observe all UFO sightings of 2017 & 
+Observe all UFO sightings of a particular year \\ and specific details (such as shape) & 
 Analyze/Consume/Discover & High \\[1ex] %space
 
 Curiosity stimulation &
@@ -159,7 +159,7 @@ This visualization supports the following tasks: two filters (via drop down menu
 }
 \end{figure}
 
-I grouped two visualizations together in this drawing. The idea of this visualization would be able to allow users to select particular states in order to observe all UFO sightings by state. Filters could be provided in order to change the time series from all of the data points, to simply just 2017. A map will be used to highlight the number of UFO sightings (showing density), using a black background and white text and encoding to make the number of sightings pop. A line chart would be used to show the quantitative number of sightings, and the detailed description of the UFO sighting would be given above the line chart when a user hovers over a particular data point on the map.\\\\
+I grouped two visualizations together in this drawing. The idea of this visualization would be able to allow users to select particular states in order to observe all UFO sightings by state. The first visualization should really be a heatmap of the entire U.S., and then this visual is the zoom functionality after a user has selected a state to focus on. Filters could be provided in order to change the time series from all of the data points, to just a particular year. The map of the state (and United States before zooming in) will be used to highlight the number of UFO sightings (showing density), using a black background and white text and encoding to make the number of sightings pop. A line chart would be used to show the quantitative number of sightings, and the detailed description of the UFO sighting would be given above the line chart when a user hovers over a particular data point on the map.\\\\
 
 \newpage
 
@@ -239,6 +239,16 @@ This is motivated by the task of making it easier to retrieve information about 
 }
 \end{figure}
 This sketch is designed to help more with the clustering and retrieve value tasks because it would have a visual encoding of the different kinds of sightings immediately visible on the national map. This idea would require a zoom feature to be useful and tooltips as well, but the general idea could be incorporated with others.\\\\
+
+\newpage
+
+\subsection*{5 Group Feedback}
+
+1. Entire U.S. map and then zoom / drill in functionality with left hand panel (Emily's visualization) \\
+
+2. Calendar (Lydia's visualization) \\
+
+3. Sliding data (Abby's visualization)
 
 
 \end{document}
