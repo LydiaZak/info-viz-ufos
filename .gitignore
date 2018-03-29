@@ -1,1 +1,4 @@
 ufos/node_modules
+src/node_modules
+src/.idea
+ufos/.idea
