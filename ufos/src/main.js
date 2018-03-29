@@ -2,9 +2,14 @@ var width = 960,
     height = 500,
     active = d3.select(null);
 
+// range of the chloropleth map
+var lowColor = '#f7fbff'
+var highColor = '#08306b'
+
 var projection = d3.geoAlbersUsa()
-    .scale(1000)
-    .translate([width / 2, height / 2]);
+    //.scale(1000)
+    .translate([width / 2, height / 2]) // translate to center of screen
+    .scale([1000]); // scale things down so see entire US
 
 var zoom = d3.zoom()
     .on("zoom", zoomed);
@@ -13,10 +18,13 @@ var initialTransform = d3.zoomIdentity
     .translate(0,0)
     .scale(1);
 
-var path = d3.geoPath()
-    .projection(projection);
+// define path generator
+var path = d3.geoPath() // path generator that will convert GeoJSON to SVG paths
+    .projection(projection); // tell path generator to use albersUsa projection
 
-var svg = d3.select("body").append("svg")
+// create svg element and append map to svg
+var svg = d3.select("body")
+    .append("svg")
     .attr("width", width)
     .attr("height", height)
     .on("click", stopped, true);
@@ -33,9 +41,15 @@ svg
     .call(zoom) // delete this line to disable free zooming
     .call(zoom.transform, initialTransform);
 
+// TODO - load in the UFO data
+// wrap around geo data so we can append the d3 scale range
+// calculate the value per state in order to fill with chloropleth 
+
+// load GeoJSON data and merge with UFO data
 d3.json("https://gist.githubusercontent.com/mbostock/4090846/raw/d534aba169207548a8a3d670c9c2cc719ff05c47/us.json", function(error, us) {
     if (error) throw error;
 
+    // Bind the data to the SVG and create one path per GeoJSON feature
     g.selectAll("path")
         .data(topojson.feature(us, us.objects.states).features)
         .enter().append("path")
