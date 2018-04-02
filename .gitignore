@@ -4,3 +4,4 @@ src/.idea
 ufos/.idea
 ufos/src/.idea
 *.csv
+*.ipynb
