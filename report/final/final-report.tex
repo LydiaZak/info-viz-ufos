@@ -162,16 +162,131 @@ It is clear that the subject is controversial but, at the same time, most would 
 
 The data we are using is posted on the website of the National UFO Report Center, whose head is Peter Davenport. The Center's website provides an online form as well as a hotline for reports of UFO sightings and these reports are annotated by Peter Davenport himself before they are posted in the database. Each report includes the date and time of the sighting, its duration, shape, location, and description summary (possibly including notes of Peter Davenport in double parentheses), as well as the date the report was posted.
 
+\begin{table}[h]
+\caption{Data attributes} % title name of the table
+\centering % centering table
+\begin{tabular}{c c c} % creating 3 columns
+\hline\hline % inserting double-line
+ Term & Type of Variable & Example\\ [0.5ex]
+\hline % inserts single-line
+
+Date & quantitative & 1/12/10 21:30\\[1ex] %space
+
+City & categorical & Fairbanks\\[1ex] %space
+
+State & categorical & AK\\[1ex] %space
+
+Shape & categorical	& Disk\\[1ex] %space
+
+Duration & quantitative & about 1.5 minutes\\[1ex] %space
+
+Summary & & ``We saw..."\\[1ex] %space
+
+Date Posted & quantitative & 1/12/2012\\[1ex] %space
+
+\hline 
+\end{tabular}
+\label{tab:PPer}
+\end{table}
+
 \section{Related Works}
-The dataset we are using has been popular on Kaggle which led two data visualization experts, Pooja Gandhi and Adam Crahen, to use it in their DuoDare project on their DataDuo blog \cite{dataduo}. The DuoDare was a project where each month one of the two experts would choose a dataset and call the other on a battle for the best visualization. The two visualizations that the experts came up with for this dataset included, among others, interactive maps, area charts, bar charts, and calendar heatmaps. Compared to these visualization, ours gives the user the chance to look into a state in more detail and learn information about a selected group of sightings.
+
+\textbf{Visualizations of the UFO dataset:}
+The dataset we are using has been popular on Kaggle which led two data visualization experts, Pooja Gandhi and Adam Crahen, to use it in their DuoDare project on their DataDuo blog \cite{dataduo}. The DuoDare was a project where each month one of the two experts would choose a dataset and call the other on a battle for the best visualization. The two visualizations that the experts came up with for this dataset included, among others, interactive maps, area charts, bar charts, and calendar heat-maps. Both visualizations as well as our own include a map of the United States. In Pooja Ghandi's visualization a point on the map corresponds to an area and hovering over the point shows a moving tooltip of the number of sightings that have been reported in that area. In Adam Crahen's visualization each point corresponds to a single sighting and hovering over the point shows the details of the sighting. Adam Crahen's visualization includes a calendar heat-map, which also allows the user to click on a particular year/month/weekday/hour and filter the sightings she sees. Pooja Ghandi's visualization includes an area chart of the number of sightings through the years and allows the user to filter the data over time by hovering over a particular vertical line on the area chart. This action also updates a donut chart showing the number of sightings in that year as a percentage over the total number of sightings. In addition to these, it includes two horizontal bar charts showing the five locations/shapes with the highest number of sightings, as well as two visualizations regarding the top five countries besides the United States with the highest number of sightings. 
+
+In our visualization we use the same encoding as Adam Crahen for the overview task, i.e. we use a map where each point corresponds to a sighting. However, instead of showing a static map of all the points, we populate the map over time. The user can pause this procedure by clicking on the time-slider. This allows her to explore more patterns about the way the sightings occur over the years, on top of giving an overall picture of the sightings, whereas the other two visualizations only use filtering to allow the user to explore these patterns. As an extra overview feature, we color each state based on the number of sightings that have occurred in that state. In addition, our visualization is different from the other two since it also supports drilling down in the data. It allows the user to choose a particular state to see the sightings of that state in more detail and it shows a line chart of the number of sightings of the state over time (instead of the area chart Pooja Gandhi used for a similar task). Finally, it allows the user to brush over an area in the state, thus selecting a group of sightings, and it updates the line chart of the sightings over time based on these sightings only. We believe that this additional exploration based on the state and area is more intriguing and would make the visualization more interesting and enjoyable to the user. We base this on the fact that our visualization supports the task of ``What sightings have happened in my area?" which is a common question when thinking about this subject.
+
+\textbf{Visualizing geographic spatial data:}
+Since we have geographic spatial data, we chose a map to represent them. There are several types of maps, based on the type of surface the Earth is projected on. There are three main types of projections: cylindrical, conical, and azimuthal \cite{projections}. Although cylindrical projections incur a significant amount of distortion (\cite{distortion}), the Mercator map, which corresponds to a cylindrical projection, is the most popular type of map. Since it is more important that the user is familiar with what they are seeing than deriving exact conclusions on the data, we chose to use the Mercator map.
 
 \section{Process}
+\begin{itemize}
+\item We interviewed Peter Davenport, the director of the National UFO Reporting Center to help us understand our dataset better.
+\item We decided on what the important tasks are for our visualization (see 3.1).
+\item We came up with different sketches to support these tasks.
+\item We discussed all our ideas and concluded on the visualization we wanted to implement. 
+\item We will provide users (our classmates) with a basic D3 interactive prototype of our visualization and get their feedback.
+\item We will finish up our visualization based on our user feedback.
+\end{itemize}
 
 \subsection{Task Analysis}
+The domain tasks our visualization supports are in Table 2.
+
+
+\begin{table}[h]
+\caption{Domain Tasks} % title name of the table
+\centering % centering table
+\begin{tabular}{c c c} % creating 3 columns
+\hline\hline % inserting double-line
+ Task & Abstraction\\ [0.5ex]
+\hline % inserts single-line
+
+Observe how the UFO \\sightings occur throughout the years & Present\\[1ex] %space
+
+Observe all UFO sightings of a particular year \\ and specific details (such as shape) & Discover\\[1ex] %space
+
+Curiosity stimulation & Enjoy\\[1ex] %space
+
+Look for areas with high number of sightings & Search/Explore\\[1ex] %space
+
+Are there clusters of UFO\\ sightings according to geographic area? & Cluster\\[1ex] %space
+
+Learn details of sighting & Retrieve Value\\[1ex] %space
+
+When did the sightings of a particular area \\(e.g. my hometown) occur? & Filter\\[1ex] %space
+
+What state has the most sightings? & Find Extremum\\[1ex] %space
+
+What date has the most sightings? & Find Extremum\\[1ex] %space
+
+\hline 
+\end{tabular}
+\label{tab:PPer}
+\end{table}
+
+
+In general these tasks can be categorized into two abstract tasks.
+\begin{itemize}
+\item \textbf{(T1)} Overview task:
+\item \textbf{(T2)} Drill-Down task:
+\end{itemize}
 
 \section{Design}
+For the abstract tasks, we chose the following visualization idioms (Table 3).
 
-(i.e., visual encoding and interaction justifications)
+
+\begin{table}[h]
+\caption{Visualizing the Abstract Tasks} % title name of the table
+\centering % centering table
+\begin{tabular}{c c c} % creating 3 columns
+\hline\hline % inserting double-line
+ Abstract Task & Visualization Idiom\\ [0.5ex]
+\hline % inserts single-line
+
+Overview & Map\\[1ex] %space
+
+Drill-Down & Map and Line Chart\\[1ex] %space
+
+\hline 
+\end{tabular}
+\label{tab:PPer}
+\end{table}
+
+\textbf{Visual Encoding and Interaction Choices:}
+
+\begin{itemize}
+
+\item Points on map for representation of geographic data
+\item Sequential color scale for frequency of sightings on choropleth map
+\item Retrieve details of sighting on tooltip on hover
+\item Clicking on state to change the drilled-down view (hovering only affects tooltip)
+\item Line chart for frequency of sightings of state over time (position as a channel for quantitative value)
+\item Brush to choose sightings of an area for which the user wants to know information about when they occurred
+
+\end{itemize}
+
+\textbf{Implementation:}
+
 
 \section{Discussion}
 
@@ -188,46 +303,56 @@ The dataset we are using has been popular on Kaggle which led two data visualiza
 Mike Bostock.
 \textit{Blocks}. 
 Click-to-Zoom via Transform,
-\\\texttt{https://bl.ocks.org/mbostock/2206590}
+\\\url{https://bl.ocks.org/mbostock/2206590}
 
 \bibitem{ufoimage} 
 Newsweek.
 \textit{UFO existence proven beyond reasonable doubt says former head of Pentagon alien program}.
-\\\texttt{http://www.newsweek.com/ufo-existence-proven-beyond\\-reasonable-doubt-says-former-head-pentagon-alien-758293}
+\\\url{http://www.newsweek.com/ufo-existence-proven-beyond\\-reasonable-doubt-says-former-head-pentagon-alien-758293}
 
 \bibitem{dataduo}
 DataDuo - DuoDare Project on UFO sightings
-\\\texttt{https://thedataduo.com/2017/11/11/duodare-3\\-ufo-sightings/}
+\\\url{https://thedataduo.com/2017/11/11/duodare-3\\-ufo-sightings/}
 
 \bibitem{ufowiki}
 Wikipedia.
 \textit{Unidentified flying object}.
-\\\texttt{https://wikipedia.org/wiki/Unidentified\_flying\_object}
+\\\url{https://wikipedia.org/wiki/Unidentified\_flying\_object}
 
 \bibitem{history}
 History.
 \textit{History of UFOs}.
-\\\texttt{https://www.history.com/topics/history-of-ufos}
+\\\url{https://www.history.com/topics/history-of-ufos}
 
 \bibitem{pentagon}
 The Guardian.
 \textit{Pentagon admits running secret UFO investigation for five years}.
-\\\texttt{https://www.theguardian.com/world/2017/dec/17/\\pentagon-admits-running-secret-ufo-investigation-for-five-years}
+\\\url{https://www.theguardian.com/world/2017/dec/17/\\pentagon-admits-running-secret-ufo-investigation-for-five-years}
 
 \bibitem{listen}
 The Guardian.
 \textit{Why we keep scanning the skies for signs of alien intelligence}.
-\\\texttt{https://www.theguardian.com/science/2017/dec/22/\\why-we-keep-scanning-the-skies-for-signs-of-alien-intelligence}
+\\\url{https://www.theguardian.com/science/2017/dec/22/\\why-we-keep-scanning-the-skies-for-signs-of-alien-intelligence}
 
 \bibitem{listenwiki}
 Wikipedia.
 \textit{Breakthrough Listen}.
-\\\texttt{https://en.wikipedia.org/wiki/Breakthrough\_Listen}
+\\\url{https://en.wikipedia.org/wiki/Breakthrough\_Listen}
 
 \bibitem{hawking}
 Newsweek.
 \textit{Stephen Hawking on alien life, extraterrestrials and the possibility of UFOs visiting Earth}.
-\texttt{http://www.newsweek.com/stephen-hawking-death-alien\\-contact-aliens-theory-ufo-search-breakthrough-844920}
+\\\url{http://www.newsweek.com/stephen-hawking-death-alien\\-contact-aliens-theory-ufo-search-breakthrough-844920}
+
+\bibitem{projections}
+Geokov.
+\textit{Map Projections - Types and Distortion Patterns}
+\\\url{http://geokov.com/education/map-projection.aspx}
+
+\bibitem{distortion}
+Mike Bostock.
+Map Projection Distortions
+\\\url{https://bl.ocks.org/mbostock/3709000}
 
 \end{thebibliography}
 
