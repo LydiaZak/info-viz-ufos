@@ -4,4 +4,4 @@ src/.idea
 ufos/.idea
 ufos/src/.idea
 *.csv
-*.ipynb
+*/.ipynb_checkpoints
