@@ -8,3 +8,6 @@ ufos/src/.idea
 .idea
 package-lock.json
 yarn.lock
+*.synctex.gz
+*.aux
+milestone3.log
