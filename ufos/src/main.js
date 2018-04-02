@@ -43,7 +43,7 @@ svg
 
 // TODO - load in the UFO data
 // wrap around geo data so we can append the d3 scale range
-// calculate the value per state in order to fill with chloropleth 
+// calculate the value per state in order to fill with chloropleth
 
 // load GeoJSON data and merge with UFO data
 d3.json("https://gist.githubusercontent.com/mbostock/4090846/raw/d534aba169207548a8a3d670c9c2cc719ff05c47/us.json", function(error, us) {
