@@ -3,3 +3,4 @@ src/node_modules
 src/.idea
 ufos/.idea
 ufos/src/.idea
+*.csv
