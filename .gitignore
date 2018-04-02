@@ -5,3 +5,6 @@ ufos/.idea
 ufos/src/.idea
 *.csv
 */.ipynb_checkpoints
+.idea
+package-lock.json
+yarn.lock
