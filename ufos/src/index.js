@@ -106,3 +106,31 @@ function zoomed() {
 function stopped() {
     if (d3.event.defaultPrevented) d3.event.stopPropagation();
 }
+
+//fake input
+data = [{ Date: '1/1/2004 12:00:00 AM', City: 'New York', State: 'NY', Shape: 'Chevron', Duration: '10 minutes', Summary: 'I saw something', Posted: '3/4/2008', Coord: [-122.490402, 37.786453]},
+        { Date: '1/2/2004 11:00:00 AM', City: 'Boston', State: 'MA', Shape: 'Light', Duration: '1 min', Summary: 'I saw something too', Posted: '4/4/2008', Coord: [-123, 40.72728]}];
+
+
+var symbol = d3.symbol();
+
+//draw points
+var dots = svg.selectAll(".dots")
+    .data(data)
+    .enter()
+    .append("path")
+    .attr("class", "dots");
+
+//shapes - from https://stackoverflow.com/questions/39760757/d3-scatterplot-from-all-circles-to-different-shapes
+dots.attr("d", symbol.type(function (d){return shape(d)}))
+    .attr("transform", function(d) { return "translate(" + projection(d.Coord)[0] + "," + projection(d.Coord)[1] + ")"; })
+    .attr("fill", "black");
+
+//define shapes categories: round -> circle, pointy -> diamond, light -> cross, undefined -> square
+function shape(d) {
+    if ((d.Shape === 'Cigar') || (d.Shape === 'Circle') || (d.Shape === 'Cylinder') || (d.Shape === 'Disk') || (d.Shape === 'Egg') || (d.Shape === 'Oval') || (d.Shape === 'Sphere')) {return d3.symbolCircle;}
+    else if ((d.Shape === 'Chevron') || (d.Shape === 'Cone') || (d.Shape === 'Diamond') || (d.Shape === 'Rectangle') || (d.Shape === 'Teardrop') || (d.Shape === 'Triangle')) {return d3.symbolDiamond;}
+    else if ((d.Shape === 'Fireball') || (d.Shape === 'Flash') || (d.Shape === 'Formation') || (d.Shape === 'Light')) {return d3.symbolCross;}
+    else {return d3.symbolSquare;} //Includes shapes: Null, Changing, Other, Unknown
+}
+
