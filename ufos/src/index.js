@@ -107,9 +107,41 @@ function stopped() {
     if (d3.event.defaultPrevented) d3.event.stopPropagation();
 }
 
-//fake input
-data = [{ Date: '1/1/2004 12:00:00 AM', City: 'New York', State: 'NY', Shape: 'Chevron', Duration: '10 minutes', Summary: 'I saw something', Posted: '3/4/2008', Coord: [-122.490402, 37.786453]},
-        { Date: '1/2/2004 11:00:00 AM', City: 'Boston', State: 'MA', Shape: 'Light', Duration: '1 min', Summary: 'I saw something too', Posted: '4/4/2008', Coord: [-123, 40.72728]}];
+//data - fake input
+data = [{ Date: '1/1/2004 12:00:00 AM', City: 'New York (Brooklyn)', State: 'NY', Shape: 'Chevron', Duration: '10 minutes', Summary: 'I saw something', Posted: '3/4/2008'},
+        { Date: '1/2/2004 11:00:00 AM', City: 'Boston', State: 'MA', Shape: 'Light', Duration: '1 min', Summary: 'I saw something too', Posted: '4/4/2008'}];
+
+//cities - fake input
+/*cities = d3.csv("/data/uscities.csv" ,function(error, cities) {
+    if (error) throw error;
+    cities.forEach(function(c) {
+        c.lat = +c.lat;
+        c.lng = +c.lng;
+    });
+    console.log(cities[0]);
+});
+*/
+
+cities = [{city:"New York", state_id: "NY", lat: 40.730610, lng:-73.935242},
+          {city:"Boston", state_id: "MA", lat: 42.361145, lng: -71.057083}];
+
+//join city coordinates to the data
+data.forEach(function(d) {
+    var result = cities.filter(function(c) {
+        var city_re = new RegExp(c.city); //create regular expression from city name
+        return city_re.test(d.City); //and check if it is a substring of the location of the sighting
+    });
+    d.Coord = (result[0] !== undefined) ? [result[0].lng, result[0].lat] : null;
+});
+
+//tooltip
+var tooltip = d3.select("body").append("div")
+    .attr("class", "tooltip")
+    .style('border', '1px solid black') //comment to remove tooltip box
+    .style("padding", "5px")
+    .style("position", "absolute") //comment if you want static tooltip
+    .style("z-index", "10")
+    .style("opacity", 0);
 
 
 var symbol = d3.symbol();
@@ -119,12 +151,32 @@ var dots = svg.selectAll(".dots")
     .data(data)
     .enter()
     .append("path")
-    .attr("class", "dots");
+    .attr("class", "dots")
+    .on("mouseover", function(d) {
+        d3.select(this)
+            .transition()
+            .duration(200)
+            .attr("stroke", "black");
+        tooltip.transition()
+            .duration(200)
+            .style("opacity", 0.9);
+        tooltip.html("Location: "+d.City+", "+d.State+"<br/> Date:"+d.Date+"<br/> Duration: "+d.Duration+"<br/> Shape: "+d.Shape+"<br/> Description: "+d.Summary)
+            .style("left", (d3.event.pageX + 10) + "px")
+            .style("top", (d3.event.pageY - 28) + "px");
+    })
+    .on("mouseout", function(d) {
+        d3.select(this).attr("stroke", "#404040");
+        tooltip.transition()
+            .duration(500)
+            .style("opacity", 0);
+    });
 
-//shapes - from https://stackoverflow.com/questions/39760757/d3-scatterplot-from-all-circles-to-different-shapes
+//dot style and shape - shapes from https://stackoverflow.com/questions/39760757/d3-scatterplot-from-all-circles-to-different-shapes
 dots.attr("d", symbol.type(function (d){return shape(d)}))
     .attr("transform", function(d) { return "translate(" + projection(d.Coord)[0] + "," + projection(d.Coord)[1] + ")"; })
-    .attr("fill", "black");
+    .attr("fill", "#404040")
+    .attr("stroke-width", 1)
+    .attr("stroke", "#404040");
 
 //define shapes categories: round -> circle, pointy -> diamond, light -> cross, undefined -> square
 function shape(d) {
