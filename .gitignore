@@ -3,7 +3,6 @@ src/node_modules
 src/.idea
 ufos/.idea
 ufos/src/.idea
-*.csv
 */.ipynb_checkpoints
 .idea
 package-lock.json
