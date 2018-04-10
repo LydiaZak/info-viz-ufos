@@ -1,11 +1,11 @@
 @font-face {
-    font-family: sans-serif;
+    font-family: serif;
     font-style: normal;
     font-weight: normal;
 }
 
 body {
-    font-family: sans-serif;
+    font-family: serif;
     font-weight:normal;
     margin: 0;
     padding: 0;
@@ -15,10 +15,12 @@ body {
 
 #title {
     text-align: center;
+    font-weight: bolder;
+    font-size: larger;
 }
 
 #content {
-    font-family:sans-serif;
+    font-family: serif;
     font-weight:normal;
     margin: 5px;
     padding: 10px;
@@ -46,7 +48,7 @@ body {
 }
 
 span.year, span.count {
-    font-family:sans-serif;
+    font-family:serif;
     font-weight:normal;
     margin: 0px 0px 0px 0px;
     font-size: 12px;
@@ -68,23 +70,23 @@ span.year, span.count {
 }
 
 .sightings:hover{
-    fill: #FF00FF;
-    stroke: #FF00FF;
+    fill: white;
+    stroke: white;
 }
 
 .tooltipMap {
-    font-family:sans-serif;
+    font-family:serif;
     font-weight:normal;
     position: absolute;
     padding: 12px;
-    background-color: darkslategray;
-    color:white;
-    border-radius: 2px;
+    background-color: darkgray;
+    color: gainsboro;
+    border-radius: 5px;
 }
 
 #slider {
     text-align: right;
-    margin-top: -30px;
+    margin-top: -50px;
 }
 
 
