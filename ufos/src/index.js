@@ -14,6 +14,9 @@ var mapTooltip = d3.select("body").append("div")
     .attr("class", "tooltipMap")
     .style("opacity", 0);
 
+var comments = d3.select("#comments").append("div")
+    .attr("class", "comments");
+
 //creates map of US
 // https://gist.githubusercontent.com/mbostock/4090846/raw/d534aba169207548a8a3d670c9c2cc719ff05c47/us.json
 d3.json("https://gist.githubusercontent.com/mbostock/4090846/raw/d534aba169207548a8a3d670c9c2cc719ff05c47/us.json", function(error,topo) { // function(us){
@@ -26,7 +29,7 @@ d3.json("https://gist.githubusercontent.com/mbostock/4090846/raw/d534aba16920754
         .data(states).enter()
         .append("path")
         .attr("class", "feature")
-        .style("fill", "black")
+        .style("fill", "#333") // change map background
         .attr("d", path)
         .attr("class", "states");
 });
@@ -73,6 +76,7 @@ function addSightingsByYear(){
         .attr("r", 2)
         .attr("class", "sightings");
 
+    // hover over / on demand details
     sightings.on("mouseover",
         function(d){
             mapTooltip.transition()
@@ -82,12 +86,22 @@ function addSightingsByYear(){
             mapTooltip.html(d.city + ", " + d.state + " Shape: " + d.shape)
                 .style("left", (d3.event.pageX + 15) + "px")
                 .style("top", (d3.event.pageY - 28) + "px");
+
+            comments.transition()
+                .duration(250)
+                .style("opacity", 1);
+
+            comments.html("<strong>Comments:</strong> " +d.comments);
         }
     );
 
     sightings.on("mouseout",
         function(d){
             mapTooltip.transition()
+                .duration(250)
+                .style("opacity", 0);
+
+            comments.transition()
                 .duration(250)
                 .style("opacity", 0);
         }

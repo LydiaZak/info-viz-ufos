@@ -8,8 +8,6 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
-
-
         <!-- scripts -->
         <!--<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>-->
         <script src="https://d3js.org/d3.v4.min.js" charset="utf-8"></script>
@@ -20,18 +18,43 @@
 
         <!-- links -->
         <link rel="stylesheet" type="text/css" href="style.css">
+
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
     </head>
 
+    <!-- Body -->
     <body>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="header-inner">
+            <div class="container">
+                <div class="title col-sm-8">
+                    <h1>Visualizing UFO Sightings</h1>
+                    <h2>An interactive exploration of UFO Sightings in the U.S. between 1910-2014</h2>
+                    <p class="authors">
+                        Abby S., Emily D., Lydia Z., Peter B. - CS 7295 April, 2018
+                    </p>
+                </div>
+                <div class="graphic col-sm-4 pull-right">
+                    <img src="ufoimg.gif" height="230" width="230">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content -->
     <div id="content">
-        <!-- header info -->
-        <div id="title">UFO Sightings by State in the U.S., 1910-2014</div>
         <span class="year">Year:</span>
         <span class="count">Sightings:</span>
 
-        <input id ="slider" type="range" min="1910" max="2014" step="1" value = "1910"/>
+        <input id="slider" type="range" min="1910" max="2014" step="1" value = "1910"/>
 
         <div id="map"></div>
+
+        <div id="comments"></div>
 
     </div>
 
