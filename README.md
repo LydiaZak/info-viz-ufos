@@ -1,4 +1,4 @@
-# UFO Sightings in the U.S. - info-viz-ufos #
+# Visualization UFO Sightings in the U.S. #
 
 A visualization built using HTML, CSS, JavaScript,
 [D3 v4](https://d3js.org/), [webpack](https://webpack.github.io/),

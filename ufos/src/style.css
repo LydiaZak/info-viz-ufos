@@ -1,7 +1,7 @@
 /* header */
 .header .header-inner {
     padding-top: 10px;
-    padding-bottom: 20px;
+    padding-bottom: 15px;
     color: #333;
     background-color: #557076;
     border-bottom: 1px solid #e5e5e5;
@@ -11,13 +11,13 @@
 h1 {
     color: white !important;
     font-size: 50px !important;
-    padding-top: 40px;
+    padding-top: 20px;
 }
 
 .header .container .title h2 {
     font-size: 18px;
     margin-top: .1em;
-    margin-bottom: 3em;
+    margin-bottom: 2.5em;
 }
 
 /* font, body, text */
@@ -40,13 +40,10 @@ body {
     text-align: center;
 }
 
-#content {
+#topContent {
     font-family:sans-serif;
     font-weight:normal;
     margin: 5px;
-    padding: 10px;
-    width: 805px;
-
 }
 
 /* map styling*/
@@ -63,9 +60,10 @@ body {
     stroke-linejoin: round;
 }
 
-#map {
+#map, #scatterplot {
     margin: 0px 0px 0px 0px;
     padding: 0px;
+    float: left;
 }
 
 span.year, span.count {
@@ -86,14 +84,14 @@ span.year, span.count {
 
 /* dots on the map */
 .sightings{
-    fill: #9fee98;
-    stroke: #9fee98;
+    fill: gainsboro; /*#9fee98;*/
+    stroke: gainsboro;
     stroke-width: 2px;
 }
 
 .sightings:hover{
-    fill: #FF00FF;
-    stroke: #FF00FF;
+    fill: darkslategrey; /*#FF00FF;*/
+    stroke: darkslategrey;
 }
 
 .tooltipMap {
@@ -103,7 +101,11 @@ span.year, span.count {
     padding: 12px;
     background-color: darkslategray;
     color:white;
-    border-radius: 2px;
+    font-size:11px;
+    border-radius: 8px;
+    text-align: left;
+    display: inline;
+    max-width: 200px;
 }
 
 #slider {
