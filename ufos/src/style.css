@@ -1,122 +1,86 @@
-.background {
-    fill: none;
-    pointer-events: all;
+@font-face {
+    font-family: sans-serif;
+    font-style: normal;
+    font-weight: normal;
 }
 
-.feature {
-    fill: #ccc;
-    cursor: pointer;
-}
-
-.feature.active {
-    fill: red;
-}
-
-.mesh {
-    fill: none;
-    stroke: #fff;
-    stroke-linecap: round;
-    stroke-linejoin: round;
+body {
+    font-family: 10px sans-serif;
+    font-weight:normal;
+    margin: 0;
+    padding: 0;
+    color: #333;
+    height:100%;
 }
 
 #title {
     text-align: center;
-    padding-bottom: 60px;
-    font-size: 22px;
-    font-weight: 400;
 }
 
-/*for the tool tip*/
-.d3-tip {
-    line-height: 1.5;
-    padding: 8px;
-    background: rgba(0, 0, 0, 0.8);
-    color: #fff;
-    border-radius: 0px;
-    text-align: center;
+#content {
+    font-family:sans-serif;
+    font-weight:normal;
+    margin: 5px;
+    padding: 10px;
+    width: 805px;
+
 }
 
-body {
-    font-family: 'Open Sans', sans-serif;
-    font-size: 12px;
-    font-weight: 400;
-    background-color: #fff;
-    width: 960px;
-    height: 800px;
-    margin-top: 10px;
-}
-
-#charts{
-    float: left;
-}
-
-.chart {
-    height: 100px;
-    margin-bottom: 20px;
-}
-
-.reset {
-    padding-left: 1em;
-    font-size: smaller;
-    color: blue;
-}
-
-.background.bar {
-    fill: #ccc;
-}
-
-.foreground.bar {
-    fill: steelblue;
-}
-
-.axis path, .axis line {
+/* map styling*/
+.feature {
     fill: none;
-    stroke: #000;
-    shape-rendering: crispEdges;
+    stroke: grey;
+    stroke-width: 1px;
+    stroke-linejoin: round;
 }
-
-.axis text {
-    font: 10px sans-serif;
-}
-
-.brush rect.extent {
-    fill: steelblue;
-    fill-opacity: .125;
-}
-
-.brush .resize path {
-    fill: #eee;
-    stroke: #666;
-}
-
-#chart path {
-    stroke: #fff;
-}
-
-#chart path.highlighted {
-    cursor: pointer;
-}
-
-.counties {
+.mesh {
     fill: none;
-    stroke: #C0C0C0;
+    stroke: lightgrey;
+    stroke-width: 2px;
     stroke-linejoin: round;
 }
 
-.q0-9 { fill:#b2182b; }
-.q1-9 { fill:#d6604d; }
-.q2-9 { fill:#f4a582; }
-.q3-9 { fill:#fddbc7; }
-.q4-9 { fill:#f7f7f7; }
-.q5-9 { fill:#d1e5f0; }
-.q6-9 { fill:#92c5de; }
-.q7-9 { fill:#4393c3; }
-.q8-9 { fill:#2166ac; }
-
 #map {
-    float: right;
+    margin: 0px 0px 0px 0px;
+    padding: 0px;
 }
 
-#map-legend{
-    text-align: center;
+span.year, span.count {
+    font-family:sans-serif;
+    font-weight:normal;
+    margin: 0px 0px 0px 0px;
+    font-size: 12px;
+    width: 100px;
+    display: inline-block;
 }
+
+.states {
+    fill: #BFBFBF;
+    stroke: #ffffff;
+    stroke-width: 2px;
+    stroke-linejoin: round;
+}
+
+.sightings{
+    fill: #39B54A;
+    stroke: #39B54A;
+    stroke-width: 2px;
+}
+
+.sightings:hover{
+    fill: #FF00FF;
+    stroke: #FF00FF;
+}
+
+.tooltipMap {
+    font-family:sans-serif;
+    font-weight:normal;
+    position: absolute;
+    padding: 12px;
+    background-color: darkslategray;
+    color:white;
+    border-radius: 2px;
+}
+
+
+
