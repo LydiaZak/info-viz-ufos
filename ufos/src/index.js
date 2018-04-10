@@ -32,7 +32,7 @@ d3.json("https://gist.githubusercontent.com/mbostock/4090846/raw/d534aba16920754
 });
 
 // read the data set, and put into variable
-d3.csv("../data/scrubbed.csv",
+d3.csv("./data/scrubbed.csv",
     function(data){
         initialData = data;
         addSightingsByYear(data);
@@ -96,7 +96,7 @@ function addSightingsByYear(){
     //update the headers
     updateHeaders(selectedYear, sightingsByYear);
 
-}//end addSightingsByYear()
+}
 
 //updates the year and count texts
 function updateHeaders(year, data){
@@ -125,9 +125,9 @@ function updateHeaders(year, data){
             return "Sightings: " + countByYear[i].value
         }
     );
-}//end updateHeaders(...)
+}
 
-//update map if slider is changed
+// update map if slider is changed
 d3.select("#slider").on("input",
     function() {
         addSightingsByYear();
