@@ -14,7 +14,7 @@ var zoom = true;
 // color for choropleth map and scatter plot
 var color = d3.scaleThreshold()
     .domain([10, 50, 100])
-    .range(['#fbb4b9', '#f768a1', '#c51b8a', '#7a0177']);
+    .range(['#8c96c6', '#8c6bb1', '#88419d', '#6e016b']);
 
 var mapTooltip = d3.select("body").append("div")
     .attr("class", "tooltipMap")
@@ -97,7 +97,6 @@ function processData(error,results,features,topo) {
     initialData = results;
     aggregationsByYear(initialData);
 
-    // barChart(); TODO
     area_chart(initialData);
 
     components = [
@@ -722,8 +721,6 @@ function area_chart(data) {
             }
         )
         .entries(us_data);
-
-    console.log(countByYear);
 
     var parseDate = d3.timeParse("%Y");
 
