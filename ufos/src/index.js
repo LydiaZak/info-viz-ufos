@@ -9,6 +9,7 @@ var initialData = {};
 var sightingsByYearCountData = [];
 var components = [];
 var sightings = d3.select(null);
+var zoom = true;
 
 // color for choropleth map and scatter plot
 var color = d3.scaleThreshold()
@@ -225,8 +226,16 @@ function choropleth(topo) { //topo
 
     states.on("click", function (d) {
 
-        projection.fitExtent([[0,0], [width, height]], d);
-        path.projection(projection);
+        if(zoom) {
+            projection.fitExtent([[0,0], [width, height]], d);
+            path.projection(projection);
+        } else {
+            projection = d3.geoAlbersUsa()
+                .scale([width * 1.25])
+                .translate([width / 2, height / 2])
+            path.projection(projection);
+        }
+
         states.attr('d', path);
         sightings.attr("cx", function(d) {
             try {
@@ -243,6 +252,8 @@ function choropleth(topo) { //topo
                     // do nothing for now
                 }
             });
+
+        zoom = !zoom;
     });
 
 
