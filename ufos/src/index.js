@@ -13,7 +13,7 @@ var zoom = true;
 
 // color for choropleth map and scatter plot
 var color = d3.scaleThreshold()
-    .domain([0.24, 0.28, 0.32])
+    .domain([10, 50, 100])
     .range(['#fbb4b9', '#f768a1', '#c51b8a', '#7a0177']);
 
 var mapTooltip = d3.select("body").append("div")
@@ -95,7 +95,7 @@ function processData(error,results,features,topo) {
     }
 
     initialData = results;
-    var intSightingsByYearCountData = aggregationsByYear(initialData);
+    aggregationsByYear(initialData);
 
     components = [
         choropleth(topo), // draw map
@@ -105,7 +105,7 @@ function processData(error,results,features,topo) {
     // TODO fix
     function update() {
         components.forEach(function (component) {
-            component(intSightingsByYearCountData)
+            component(sightingsByYearCountData)
         })
     }
 
@@ -114,6 +114,24 @@ function processData(error,results,features,topo) {
         sightingsByYearCountData.forEach(function (d) { // data
             d.filtered = clear ? false
                 : d.avgDurationSecs < x0 || d.avgDurationSecs > x1 || d.sightingCountsByState < y0 || d.sightingCountsByState > y1
+
+            // TODO
+            // var flatAggregations = [];
+            // var yearAggrs = d[0].values;
+            // for (var i = 0; i < yearAggrs.length; i++){
+            //     var obj = yearAggrs[i];
+            //     var name = obj.key;
+            //
+            //     flatAggregations.push({
+            //         state: name,
+            //         sightingCountsByState: obj.value.sightingCountsByState,
+            //         avgDurationSecs: obj.value.avgDurationSecs,
+            //     });
+            // }
+            //
+            // flatAggregations.filtered = clear ? false
+            //     : flatAggregations.avgDurationSecs < x0 || flatAggregations.avgDurationSecs > x1 ||
+            //     flatAggregations.sightingCountsByState < y0 || flatAggregations.sightingCountsByState > y1
         })
         update()
     }
@@ -161,7 +179,7 @@ function aggregationsByYear(data) {
         .entries(data);
 
     //filter our data: get aggre data per state by year
-    sightingsByYearCountData = aggregations.filter(
+    var tempAggr = aggregations.filter(
         function(d) {
             if(d.key == getCurrentYear()) {
                 return d;
@@ -171,19 +189,17 @@ function aggregationsByYear(data) {
 
     // flatten the rolled up values from d3
     var flatAggregations = [];
-    var yearAggrs = sightingsByYearCountData[0].values;
+    var yearAggrs = tempAggr[0].values;
     for (var i = 0; i < yearAggrs.length; i++){
         var obj = yearAggrs[i];
         var name = obj.key;
 
-        flatAggregations.push({
+        sightingsByYearCountData.push({
             state: name,
             sightingCountsByState: obj.value.sightingCountsByState,
             avgDurationSecs: obj.value.avgDurationSecs,
         });
     }
-
-    return flatAggregations;
 }
 
 /**************************************************************
@@ -298,8 +314,7 @@ function addSightingsByYear() {
             try {
                 return projection([d.longitude, d.latitude])[0];
             } catch (e) {
-                // TODO do nothing for now
-                // console.log(e);
+                // do nothing for now
             }
         })
         .attr("cy", function(d){
@@ -307,11 +322,10 @@ function addSightingsByYear() {
             try {
                 return projection([d.longitude, d.latitude])[1];
             } catch (e) {
-                // TODO do nothing for now
-                // console.log(e);
+                // do nothing for now
             }
         })
-        .attr("r", 2)
+        .attr("r", 1)
         .attr("class", "sightings");
 
     // hover over / on demand details
@@ -669,9 +683,9 @@ function updatePieChart(domElementToAppendTo, scheme, sightings){
 d3.select("#slider").on("input", function() {
     addSightingsByYear();
 
-    var currData = aggregationsByYear(initialData);
+    aggregationsByYear(sightingsByYearCountData);
     components.forEach(function (component) {
-        component(currData)
+        component(sightingsByYearCountData)
     })
 });
 
