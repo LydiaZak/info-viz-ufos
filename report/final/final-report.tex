@@ -200,14 +200,22 @@ In our visualization we use the same encoding as Adam Crahen for the overview ta
 Since we have geographic spatial data, we chose a map to represent them. There are several types of maps, based on the type of surface the Earth is projected on. There are three main types of projections: cylindrical, conical, and azimuthal \cite{projections}. Although cylindrical projections incur a significant amount of distortion (\cite{distortion}), the Mercator map, which corresponds to a cylindrical projection, is the most popular type of map. Since it is more important that the user is familiar with what they are seeing than deriving exact conclusions on the data, we chose to use the Mercator map.
 
 \section{Process}
-\begin{itemize}
-\item We interviewed Peter Davenport, the director of the National UFO Reporting Center to help us understand our dataset better.
-\item We decided on what the important tasks are for our visualization (see 3.1).
-\item We came up with different sketches to support these tasks.
-\item We discussed all our ideas and concluded on the visualization we wanted to implement. 
-\item We will provide users (our classmates) with a basic D3 interactive prototype of our visualization and get their feedback.
-\item We will finish up our visualization based on our user feedback.
-\end{itemize}
+In this section we focus on the necessary steps that we took successfully create our project. Most of the steps were prescribed for us beforehand as requirements for the final project for our data visualization course. \\
+
+\textbf{Initial data selection:} With requirements for a class project already available to us, this dataset became appealing to us for its cleanliness and public availability. The key requirements were that we make an interactive, web-based visualization with at least two different visual encodings and two features from brushing and linking, overview, and details-on-demand. The existing visualizations of this data we found \cite{dataduo} left the option to incorporate brushing and linking of time with the spacial data as well as a few other features as a novel direction to head in. We found the whole subject to be amusing and felt a broad audience would be able to have fun exploring an interactive visualization of these data.
+
+\textbf{Interview with field expert:} Having decided to use the the National UFO Report Center's dataset for our project, we conducted a phone interview with its head, Peter Davenport to help us understand his website and dataset better. The current iteration of the website was set up in 1995 and hosts approximately 145,000 alleged sightings, with a noticeable uptick since the option to report a sighting via the internet became available. Currently there is a weekly UFO update on Coast to Coast AM radio and the website boasts many details with images of suspected sightings, however no visualizations of the dataset as a whole. After this interview we were able to decide which tasks were most important for us to satisfy in our visualization (see 3.1).
+
+\textbf{Prototyping workflows based on feedback:} Based on the tasks outlined in 3.1, we each created different sketches that we discussed extensively with each other as well as with the teaching staff before incorporating the best features of those sketches into a final workflow to keep as a goal.  Further along the way, there was an interactive feature testing session where we tested a basic D3 prototype of our visualization with our classmates. The feedback we gathered served to help us tailor the design to users less familiar than ourselves with the tool and the data behind it.% (ex: a new color scheme to be more colorblind-friendly, or whatever feedback we get).
+
+%\begin{itemize}
+%\item We interviewed Peter Davenport, the director of the National UFO Reporting Center to help us understand our dataset better.
+%\item We decided on what the important tasks are for our visualization (see 3.1).
+%\item We came up with different sketches to support these tasks.
+%\item We discussed all our ideas and concluded on the visualization we wanted to implement. 
+%\item We will provide users (our classmates) with a basic D3 interactive prototype of our visualization and get their feedback.
+%\item We will finish up our visualization based on our user feedback.
+%\end{itemize}
 
 \subsection{Task Analysis}
 The domain tasks our visualization supports are in Table 2.
@@ -289,10 +297,13 @@ Drill-Down & Map and Line Chart\\[1ex] %space
 
 
 \section{Discussion}
-
+\subsection{Reflections?}
+\subsection{Future Work}
+This paper focused on the UFO data we worked with, the tasks we sought to implement, and the visualization design that resulted from these requirements as well as through acquired feedback. There are many features we would like to be able to include in the future, however. Among the most interesting would be to associate historical weather data with the dates of the alleged UFO sightings. Additionally, plotting sources of red flags such as airports or weather balloons would be of use in explaining a large number of sightings. The biggest challenge at the moment is acquiring a suitable dataset containing this information in a reasonable format. 
 
 
 \section{Conclusion}
+We created a web-based interactive visualization providing a novel view of data originally gathered by the National UFO Report Center of thousands of alleged UFO sightings around the country. We incorporated interactivity tools such as brushing and linking to make it easier to dynamically view reported sightings on a United States map and select only reports within years ranges of interest. This allows a map to be less cluttered than existing maps and thus also allows for details-on-demand to be easier to use as there is less ambiguity of where a user is pointing. We use an appealing color palate for the task at hand and create an environment that is amusing and engaging to users interested in understanding the scale of belief in conspiracies or UFOs.
 
 
 
