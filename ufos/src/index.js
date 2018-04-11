@@ -223,10 +223,8 @@ function choropleth(topo) { //topo
         .style('stroke', '#fff')
         .style('stroke-width', 1);
 
-    states.on("click", clicked);
+    states.on("click", function (d) {
 
-
-    function clicked(d) {
         projection.fitExtent([[0,0], [width, height]], d);
         path.projection(projection);
         states.attr('d', path);
@@ -245,7 +243,7 @@ function choropleth(topo) { //topo
                     // do nothing for now
                 }
             });
-    }
+    });
 
 
     return function update(data) {
