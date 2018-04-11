@@ -85,7 +85,9 @@ function processData(error,results,features,topo) {
     }
 
     initialData = results;
-    sightingsByYearCountData = aggregationsByYear(initialData);
+    var intSightingsByYearCountData = aggregationsByYear(initialData);
+
+    // barChart(); TODO
 
     components = [
         choropleth(topo), // draw map
@@ -95,7 +97,7 @@ function processData(error,results,features,topo) {
     // TODO fix
     function update() {
         components.forEach(function (component) {
-            component(sightingsByYearCountData)
+            component(intSightingsByYearCountData)
         })
     }
 
@@ -111,6 +113,8 @@ function processData(error,results,features,topo) {
     update()
     addSightingsByYear();
 }
+
+
 
 
 /**
@@ -212,7 +216,7 @@ function choropleth(topo) { //topo
     return function update(data) {
         svg.selectAll('path')
             .data(data, function (d) {
-                if(d.country == "us" && d.state == getCurrentYear()) {
+                if(d.year == getCurrentYear() && (d.country == "us" || d.country == "") && d.state != "") {
                     return d.state
                 }
             })
@@ -350,13 +354,22 @@ function addSightingsByYear() {
         .data(sightingsByYear).enter()
         .append("circle")
         .attr("cx", function(d) {
+            try {
                 return projection([d.longitude, d.latitude])[0];
+            } catch (e) {
+                // TODO do nothing for now
+                // console.log(e);
             }
-        )
+        })
         .attr("cy", function(d){
+
+            try {
                 return projection([d.longitude, d.latitude])[1];
+            } catch (e) {
+                // TODO do nothing for now
+                // console.log(e);
             }
-        )
+        })
         .attr("r", 2)
         .attr("class", "sightings");
 
@@ -506,7 +519,7 @@ function updatePieChart(domElementToAppendTo, scheme, sightings){
 
     var arc = d3.arc()
         .outerRadius(radius - 10)
-        .innerRadius(50);
+        .innerRadius(40);
 
     var pie = d3.pie()
         .sort(null)
@@ -596,15 +609,32 @@ function updatePieChart(domElementToAppendTo, scheme, sightings){
 
 }
 
+
+/**************************************************************
+ * BAR CHART
+ *************************************************************/
+
 /**
- * Update the map if slide is moved
+ * Brushing bar chart
+ */
+function barChart() {
+
+}
+
+
+/**
+ * Upyear the map if slide is moved
  */
 d3.select("#slider").on("input", function() {
     addSightingsByYear();
+
+    var currData = aggregationsByYear(initialData);
+    components.forEach(function (component) {
+        component(currData)
+    })
 });
 
 d3.select(self.frameElement).style("height", "675px");
-
 
 window.onload = init();  // magic starts here
 
