@@ -212,7 +212,7 @@ function choropleth(topo) { //topo
     return function update(data) {
         svg.selectAll('path')
             .data(data, function (d) {
-                if(d.country == "us" && d.state == getCurrentYear()) {
+                if(d.state == getCurrentYear() && (d.country == "us" || d.country == "") && d.state != "") {
                     return d.state
                 }
             })
@@ -350,13 +350,22 @@ function addSightingsByYear() {
         .data(sightingsByYear).enter()
         .append("circle")
         .attr("cx", function(d) {
+            try {
                 return projection([d.longitude, d.latitude])[0];
+            } catch (e) {
+                // TODO do nothing for now
+                // console.log(e);
             }
-        )
+        })
         .attr("cy", function(d){
+
+            try {
                 return projection([d.longitude, d.latitude])[1];
+            } catch (e) {
+                // TODO do nothing for now
+                // console.log(e);
             }
-        )
+        })
         .attr("r", 2)
         .attr("class", "sightings");
 

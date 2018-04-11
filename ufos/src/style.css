@@ -1,4 +1,6 @@
-/* header */
+/* **********************************
+    HEADER
+ ************************************/
 .header .header-inner {
     padding-top: 5px;
     padding-bottom: 5px;
@@ -20,7 +22,6 @@ h1 {
     margin-bottom: 2.5em;
 }
 
-/* font, body, text */
 @font-face {
     font-family: sans-serif;
     font-style: normal;
@@ -46,7 +47,9 @@ body {
     margin-left: 20px;
 }
 
-/* map styling*/
+/* **********************************
+    MAP
+ ************************************/
 .feature {
     fill: none;
     stroke: grey;
@@ -83,7 +86,9 @@ span.year, span.count {
     stroke-linejoin: round;
 }
 
-/* dots on the map */
+/* **********************************
+    MAP DOTS / SIGHTINGS
+ ************************************/
 .sightings{
     fill: gainsboro; /*#9fee98;*/
     stroke: gainsboro;
@@ -115,9 +120,9 @@ span.year, span.count {
     margin-top: -30px;
 }
 
-/**
-pie charts
- */
+/* **********************************
+    PIE CHART
+ ************************************/
 .tooltipChart{
     font-family:sans-serif;
     font-weight:normal;
