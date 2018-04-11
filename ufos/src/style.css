@@ -171,3 +171,14 @@ span.year, span.count {
 
 path { stroke: #333; stroke-width: 1; }
 path:hover { stroke-width: 3; }
+
+.area {
+    fill: #7a0177;
+    clip-path: url(#clip);
+}
+
+.zoom {
+    cursor: move;
+    fill: none;
+    pointer-events: all;
+}
