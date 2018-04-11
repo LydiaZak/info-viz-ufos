@@ -6,9 +6,8 @@ var projection = 0;
 var path = 0;
 var svg = 0;
 var initialData = {};
-var sightingsByYearCountData = {};
-var attributeArray = [];
-var currentAttribute = 0;
+var sightingsByYearCountData = [];
+var components = [];
 
 // color for choropleth map and scatter plot
 var color = d3.scaleThreshold()
@@ -25,13 +24,11 @@ var comments = d3.select("#comments").append("div")
 
 /**
  * Initialize.
+ * Loads the data, processes it, then creates map and charts
  */
 function init() {
-    // loads the data, processes it, then creates map and charts
     loadData();
-    //setMap(); TODO REMOVE
 }
-
 
 
 /**
@@ -40,8 +37,24 @@ function init() {
  */
 function loadData() {
     d3.queue()   // queue function loads all external data files asynchronously
+        .defer(d3.csv, "./data/scrubbed.csv", function (d) {
+            return {
+                year: d.year,
+                city: d.city,
+                state: d.state,
+                shape: d.shape,
+                latitude: +d.latitude,
+                longitude: +d.longitude,
+                datetime: d.datetime,
+                country: d.country,
+                durationsec: +d.durationsec,
+                durationhours: d.durationhours,
+                comments: d.comments,
+                dateposted: d.dateposted
+            }
+        })  // and associated data in csv file
+        .defer(d3.json, 'us-states.json') // TODO
         .defer(d3.json, "us.json")  // our geometries
-        .defer(d3.csv, "./data/scrubbed.csv")  // and associated data in csv file
         .await(processData);   // once all files are loaded, call the processData function passing
                                // the loaded objects as arguments
 }
@@ -52,28 +65,29 @@ function loadData() {
  * @param topo
  * @param data
  */
-function processData(error,topo,data) {
+function processData(error,results,features,topo) {
     if (error) {
         throw error
     }
 
-    var results = data[0];
-    var features = topo; //data[1].features
+    initialData = results;
+    sightingsByYearCountData = aggregationsByYear(initialData);
 
-    var components = [
-        choropleth(features), // draw map
+    components = [
+        choropleth(topo), // draw map
         scatterplot(onBrush)
     ]
 
+    // TODO fix
     function update() {
         components.forEach(function (component) {
-            component(results)
+            component(sightingsByYearCountData)
         })
     }
 
     function onBrush(x0, x1, y0, y1) {
         var clear = x0 === x1 || y0 === y1
-        data.forEach(function (d) {
+        sightingsByYearCountData.forEach(function (d) { // data
             d.filtered = clear ? false
                 : d.avgDurationSecs < x0 || d.avgDurationSecs > x1 || d.sightingCountsByState < y0 || d.sightingCountsByState > y1
         })
@@ -81,49 +95,85 @@ function processData(error,topo,data) {
     }
 
     update()
-
-    sightingsByYearCountData = aggregationsByYear(data);
-    initialData = data;
-    //drawMap(topo); TODO
-    addSightingsByYear(); // data
+    addSightingsByYear();
 }
 
-// TODO
+
+/**
+ * Get the roll up aggregations of the number of sightings by state
+ * for the selected year and the roll up average of duration (in seconds)
+ * for the years sightings by state.
+ * @param data
+ */
 function aggregationsByYear(data) {
 
+    // roll up the counts by year per state
+    // key: year, values {key: state, value: count }
+    var aggregations = d3.nest()
+        .key(
+            function(d){
+                return d.year;
+            }
+        )
+        .key(
+            function(d){
+                return d.state;
+            }
+        )
+        .rollup(
+            function(values) {
+                var s = d3.sum(values, function(v) {
+                    return v.durationsec;
+                });
+
+                return {
+                    sightingCountsByState: values.length,
+                    avgDurationSecs: (s / values.length)
+                };
+            }
+        )
+        .entries(data);
+
+    //filter our data: get aggre data per state by year
+    sightingsByYearCountData = aggregations.filter(
+        function(d) {
+            if(d.key == getCurrentYear()) {
+                return d;
+            }
+        }
+    );
+
+    // flatten the rolled up values from d3
+    var flatAggregations = [];
+    var yearAggrs = sightingsByYearCountData[0].values;
+    for (var i = 0; i < yearAggrs.length; i++){
+        var obj = yearAggrs[i];
+        var name = obj.key;
+
+        flatAggregations.push({
+            state: name,
+            sightingCountsByState: obj.value.sightingCountsByState,
+            avgDurationSecs: obj.value.avgDurationSecs,
+        });
+    }
+
+    return flatAggregations;
 }
 
-// TODO
 /**
- * Sets up the map
+ * Create the choropleth map
+ * @param topo
+ * @returns {update}
  */
-// function setMap() {
-//     width = 800;
-//     height = 500;
-//
-//     // set projection
-//     projection = d3.geoAlbersUsa()
-//         .translate([width/2, height/2]) // translate to center of screen
-//         .scale([1000]); // scale things down so see entire US
-//
-//     path = d3.geoPath() //convert GeoJSON to SVG paths
-//         .projection(projection); // tell path generator to use albersUsa projection
-//
-//     // create svg variable for map
-//     svg = d3.select("#map").append("svg")
-//         .attr("width", width)
-//         .attr("height", height);
-// }
-
-function choropleth(features) {
+function choropleth(topo) { //topo
     width = 800;
     height = 500;
 
     projection = d3.geoAlbersUsa()
-        .translate([width/2, height/2]) // translate to center of screen
-        .scale([1000]); // scale things down so see entire US
-        // .scale([width * 1.25])
-        // .translate([width / 2, height / 2])
+        //.translate([width/2, height/2]) // translate to center of screen
+        //.scale([1000]); // scale things down so see entire US
+        .scale([width * 1.25])
+        .translate([width / 2, height / 2])
 
     // convert GeoJSON to SVG paths.
     // tell path generator to use albersUsa projection
@@ -138,7 +188,7 @@ function choropleth(features) {
     // draw the map
     svg.selectAll('path')
         //.data(features)
-        .data(topojson.feature(features, features.objects.states).features)  // bind data to these non-existent objects
+        .data(topojson.feature(topo, topo.objects.states).features)  // bind data to these non-existent objects
         .enter()
         .append('path') // prepare data to be appended to paths
         .attr('d', path) // create them using the svg path generator defined above
@@ -147,8 +197,14 @@ function choropleth(features) {
 
     return function update(data) {
         svg.selectAll('path')
-            .data(data, function (d) { return d.name || d.properties.name })
-            .style('fill', function (d) { return d.filtered ? '#ddd' : color(d.sightingCountsByState) })
+            .data(data, function (d) {
+                if(d.country == "us" && d.state == getCurrentYear()) {
+                    return d.state
+                }
+            })
+            .style('fill', function (d) {
+                return d.filtered ? '#ddd' : color(d.sightingCountsByState)
+            })
     }
 }
 
@@ -164,10 +220,8 @@ function scatterplot(onBrush) {
 
     var xAxis = d3.axisBottom()
         .scale(x)
-        .tickFormat(d3.format('$.2s'))
     var yAxis = d3.axisLeft()
         .scale(y)
-        .tickFormat(d3.format('.0%'))
 
     var brush = d3.brush()
         .extent([[0, 0], [swidth, sheight]])
@@ -249,24 +303,6 @@ function scatterplot(onBrush) {
     }
 }
 
-
-// TODO REMOVE
-/**
- * Draw the map.
- * @param topo
- */
-// function drawMap(topo) {
-//
-//     svg.selectAll("path")   // select country objects (which don't exist yet)
-//         .data(topojson.feature(topo, topo.objects.states).features)  // bind data to these non-existent objects
-//         .enter().append("path") // prepare data to be appended to paths
-//         .attr("class", "feature") // give them a class for styling and access later
-//         .style("fill", "#333") // change map background
-//         .attr("id", function(d) { return "code_" + d.properties.id; }, true)  // give each a unique id for access later
-//         .attr("d", path) // create them using the svg path generator defined above
-//         .attr("class", "states");
-// }
-
 /**
  * Get the current year the user has selected
  * @returns {*}
@@ -279,6 +315,8 @@ function getCurrentYear() {
  * Fills the map with locations of the sightings by year
  */
 function addSightingsByYear() {
+
+    //remove all current sightings for updateCommands
     d3.selectAll(".sightings").remove();
 
     //get the current year
@@ -293,9 +331,6 @@ function addSightingsByYear() {
         }
     );
 
-    // SIGHTINGS LOGIC
-    //remove all current sightings for updateCommands
-
     //populate map with sightings by year (dots)
     var sightings = svg.selectAll(".sightings")
         .data(sightingsByYear).enter()
@@ -308,7 +343,6 @@ function addSightingsByYear() {
                 return projection([d.longitude, d.latitude])[1];
             }
         )
-        //.attr("transform", function(d) { return "translate(" + projection(d.longitude)[0] + "," + projection(d.latitude)[1] + ")"; })
         .attr("r", 2)
         .attr("class", "sightings");
 
@@ -384,11 +418,9 @@ function updateHeaders(year, data){
 /**
  * Update the map if slide is moved
  */
-d3.select("#slider").on("input",
-    function() {
-        addSightingsByYear();
-    }
-);
+d3.select("#slider").on("input", function() {
+    addSightingsByYear();
+});
 
 d3.select(self.frameElement).style("height", "675px");
 
