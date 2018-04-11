@@ -1,7 +1,5 @@
 
 // globals
-var width = 0;
-var height = 0;
 var projection = 0;
 var path = 0;
 var svg = 0;
@@ -77,7 +75,7 @@ function loadData() {
                 }
             }
         })  // and associated data in csv file
-        .defer(d3.json, './us-states.json') // TODO
+        .defer(d3.json, './us-states.json') // TODO may not need this
         .defer(d3.json, "./us.json")  // our geometries
         .await(processData);   // once all files are loaded, call the processData function passing
                                // the loaded objects as arguments
@@ -95,7 +93,9 @@ function processData(error,results,features,topo) {
     }
 
     initialData = results;
-    aggregationsByYear(initialData);
+
+    var intSightingsByYearCountData = aggregationsByYear(initialData);
+    //aggregationsByYear(initialData);
 
     area_chart(initialData);
 
@@ -107,33 +107,33 @@ function processData(error,results,features,topo) {
     // TODO fix
     function update() {
         components.forEach(function (component) {
-            component(sightingsByYearCountData)
+            component(intSightingsByYearCountData)
         })
     }
 
     function onBrush(x0, x1, y0, y1) {
         var clear = x0 === x1 || y0 === y1
         sightingsByYearCountData.forEach(function (d) { // data
-            d.filtered = clear ? false
-                : d.avgDurationSecs < x0 || d.avgDurationSecs > x1 || d.sightingCountsByState < y0 || d.sightingCountsByState > y1
+            // d.filtered = clear ? false
+            //     : d.avgDurationSecs < x0 || d.avgDurationSecs > x1 || d.sightingCountsByState < y0 || d.sightingCountsByState > y1
 
             // TODO
-            // var flatAggregations = [];
-            // var yearAggrs = d[0].values;
-            // for (var i = 0; i < yearAggrs.length; i++){
-            //     var obj = yearAggrs[i];
-            //     var name = obj.key;
-            //
-            //     flatAggregations.push({
-            //         state: name,
-            //         sightingCountsByState: obj.value.sightingCountsByState,
-            //         avgDurationSecs: obj.value.avgDurationSecs,
-            //     });
-            // }
-            //
-            // flatAggregations.filtered = clear ? false
-            //     : flatAggregations.avgDurationSecs < x0 || flatAggregations.avgDurationSecs > x1 ||
-            //     flatAggregations.sightingCountsByState < y0 || flatAggregations.sightingCountsByState > y1
+            var flatAggregations = [];
+            var yearAggrs = d[0].values;
+            for (var i = 0; i < yearAggrs.length; i++){
+                var obj = yearAggrs[i];
+                var name = obj.key;
+
+                flatAggregations.push({
+                    state: name,
+                    sightingCountsByState: obj.value.sightingCountsByState,
+                    avgDurationSecs: obj.value.avgDurationSecs,
+                });
+            }
+
+            flatAggregations.filtered = clear ? false
+                : flatAggregations.avgDurationSecs < x0 || flatAggregations.avgDurationSecs > x1 ||
+                flatAggregations.sightingCountsByState < y0 || flatAggregations.sightingCountsByState > y1
         })
         update()
     }
@@ -181,7 +181,7 @@ function aggregationsByYear(data) {
         .entries(data);
 
     //filter our data: get aggre data per state by year
-    var tempAggr = aggregations.filter(
+    sightingsByYearCountData = aggregations.filter(
         function(d) {
             if(d.key == getCurrentYear()) {
                 return d;
@@ -191,17 +191,21 @@ function aggregationsByYear(data) {
 
     // flatten the rolled up values from d3
     var flatAggregations = [];
-    var yearAggrs = tempAggr[0].values;
+    var yearAggrs = sightingsByYearCountData[0].values;
+    //var yearAggrs = tempAggr[0].values;
     for (var i = 0; i < yearAggrs.length; i++){
         var obj = yearAggrs[i];
         var name = obj.key;
 
-        sightingsByYearCountData.push({
+        //sightingsByYearCountData.push({
+        flatAggregations.push({
             state: name,
             sightingCountsByState: obj.value.sightingCountsByState,
             avgDurationSecs: obj.value.avgDurationSecs,
         });
     }
+
+    return flatAggregations;
 }
 
 /**************************************************************
@@ -213,8 +217,8 @@ function aggregationsByYear(data) {
  * @returns {update}
  */
 function choropleth(topo) { //topo
-    width = 800;
-    height = 500;
+    var width = 800;
+    var height = 500;
 
     projection = d3.geoAlbersUsa()
         //.translate([width/2, height/2]) // translate to center of screen
@@ -261,15 +265,13 @@ function choropleth(topo) { //topo
             } catch (e) {
                 // do nothing for now
             }
-        })
-            .attr("cy", function(d){
-
-                try {
-                    return projection([d.longitude, d.latitude])[1];
-                } catch (e) {
-                    // do nothing for now
-                }
-            });
+        }).attr("cy", function(d){
+            try {
+                return projection([d.longitude, d.latitude])[1];
+            } catch (e) {
+                // do nothing for now
+            }
+        });
 
         zoom = !zoom;
     });
@@ -327,7 +329,7 @@ function addSightingsByYear() {
                 // do nothing for now
             }
         })
-        .attr("r", 1)
+        .attr("r", 2)
         .attr("class", "sightings");
 
     // hover over / on demand details
@@ -442,7 +444,7 @@ function scatterplot(onBrush) {
     var bg = svg.append('g')
     var gx = svg.append('g')
         .attr('class', 'x axis')
-        .attr('transform', 'translate(0,' + height + ')')
+        .attr('transform', 'translate(0,' + sheight + ')')
     var gy = svg.append('g')
         .attr('class', 'y axis')
 
@@ -679,27 +681,9 @@ function updatePieChart(domElementToAppendTo, scheme, sightings){
 
 }
 
-
-/**
- * Upyear the map if slide is moved
- */
-d3.select("#slider").on("input", function() {
-    addSightingsByYear();
-
-    aggregationsByYear(sightingsByYearCountData);
-    components.forEach(function (component) {
-        component(sightingsByYearCountData)
-    })
-});
-
-d3.select(self.frameElement).style("height", "675px");
-
-window.onload = init();  // magic starts here
-
-
 /*****************************************************************
  * Brushing area chart
- */
+ ************************************************************ */
 
 function area_chart(data) {
 
@@ -722,63 +706,61 @@ function area_chart(data) {
         )
         .entries(us_data);
 
-    var parseDate = d3.timeParse("%Y");
+    var amargin = {top: 20, right: 20, bottom: 110, left: 50},
+        amargin2 = {top: 430, right: 20, bottom: 30, left: 40},
+        awidth = 960 - amargin.left - amargin.right,
+        aheight = 500 - amargin.top - amargin.bottom,
+        aheight2 = 500 - amargin2.top - amargin2.bottom;
 
-    var margin = {top: 20, right: 20, bottom: 110, left: 50},
-        margin2 = {top: 430, right: 20, bottom: 30, left: 40},
-        width = 960 - margin.left - margin.right,
-        height = 500 - margin.top - margin.bottom,
-        height2 = 500 - margin2.top - margin2.bottom;
-
-    var x = d3.scaleLinear().range([0, width]),
-        x2 = d3.scaleLinear().range([0, width]),
-        y = d3.scaleLinear().range([height, 0]),
-        y2 = d3.scaleLinear().range([height2, 0]);
+    var x = d3.scaleLinear().range([0, awidth]),
+        x2 = d3.scaleLinear().range([0, awidth]),
+        y = d3.scaleLinear().range([aheight, 0]),
+        y2 = d3.scaleLinear().range([aheight2, 0]);
 
     var xAxis = d3.axisBottom(x).tickFormat(d3.format("d")),
         xAxis2 = d3.axisBottom(x2).tickFormat(d3.format("d")),
         yAxis = d3.axisLeft(y);
 
     var brush = d3.brushX()
-        .extent([[0, 0], [width, height2]])
+        .extent([[0, 0], [awidth, aheight2]])
         .on("brush", brushed);
 
 
     var svg = d3.select("#area_chart").append("svg")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom);
+        .attr("width", awidth + amargin.left + amargin.right)
+        .attr("height", aheight + amargin.top + amargin.bottom);
     var zoom = d3.zoom()
         .scaleExtent([1, Infinity])
-        .translateExtent([[0, 0], [width, height]])
-        .extent([[0, 0], [width, height]])
+        .translateExtent([[0, 0], [awidth, aheight]])
+        .extent([[0, 0], [awidth, aheight]])
         .on("zoom", zoomed);
 
     var area = d3.area()
         .curve(d3.curveMonotoneX)
         .x(function(d) { return x(d.key); })
-        .y0(height)
+        .y0(aheight)
         .y1(function(d) { return y(d.value); });
 
     var area2 = d3.area()
         .curve(d3.curveMonotoneX)
         .x(function(d) { return x2(d.key); })
-        .y0(height2)
+        .y0(aheight2)
         .y1(function(d) { return y2(d.value); });
 
 
     svg.append("defs").append("clipPath")
         .attr("id", "clip")
         .append("rect")
-        .attr("width", width)
-        .attr("height", height);
+        .attr("width", awidth)
+        .attr("height", aheight);
 
     var focus = svg.append("g")
         .attr("class", "focus")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        .attr("transform", "translate(" + amargin.left + "," + amargin.top + ")");
 
     var context = svg.append("g")
         .attr("class", "context")
-        .attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
+        .attr("transform", "translate(" + amargin2.left + "," + amargin2.top + ")");
 
     y.domain(d3.extent(countByYear, function (d) {
         return d.value;
@@ -796,7 +778,7 @@ function area_chart(data) {
 
     focus.append("g")
         .attr("class", "axis axis--x")
-        .attr("transform", "translate(0," + height + ")")
+        .attr("transform", "translate(0," + aheight + ")")
         .call(xAxis);
 
     axisofy = focus.append("g")
@@ -819,7 +801,7 @@ function area_chart(data) {
 
     context.append("g")
         .attr("class", "axis axis--x")
-        .attr("transform", "translate(0," + height2 + ")")
+        .attr("transform", "translate(0," + aheight2 + ")")
         .call(xAxis2);
 
     context.append("g")
@@ -829,10 +811,10 @@ function area_chart(data) {
 
     svg.append("rect")
         .attr("class", "zoom")
-        .attr("width", width)
-        .attr("height", height)
+        .attr("width", awidth)
+        .attr("height", aheight)
         .attr("opacity", 0)
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+        .attr("transform", "translate(" + amargin.left + "," + amargin.top + ")")
         .call(zoom);
 
 
@@ -843,7 +825,7 @@ function area_chart(data) {
         focus.select(".area").attr("d", area);
         focus.select(".axis--x").call(xAxis);
         svg.select(".zoom").call(zoom.transform, d3.zoomIdentity
-            .scale(width / (s[1] - s[0]))
+            .scale(awidth / (s[1] - s[0]))
             .translate(-s[0], 0));
     }
 
@@ -856,10 +838,22 @@ function area_chart(data) {
         context.select(".brush").call(brush.move, x.range().map(t.invertX, t));
     }
 
-    function type(d) {
-        d.value = +d.value;
-        d.key = parseDate(+d.key);
-        return d;
-    }
-
 }
+
+
+/**
+ * Update the map if slider is moved
+ */
+d3.select("#slider").on("input", function() {
+    addSightingsByYear();
+
+    var currData = aggregationsByYear(initialData);
+
+    components.forEach(function (component) {
+        component(currData)
+    })
+});
+
+d3.select(self.frameElement).style("height", "675px");
+
+window.onload = init();  // magic starts here

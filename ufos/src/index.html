@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<meta charset="utf-8">
 <html lang="en">
     <head>
-        <title>UFOs</title>
+        <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+
+        <title>Visualizing UFO Sightings</title>
 
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -20,7 +21,7 @@
         <!--<script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>-->
 
         <!-- links -->
-        <link rel="stylesheet" type="text/css" href="./style.css">
+        <link rel="stylesheet" type="text/css" href="style.css">
 
         <!-- Latest compiled and minified CSS -->
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
@@ -31,7 +32,7 @@
     <body>
 
         <!-- Header -->
-        <div class="header">
+        <div class="full-width header">
             <div class="header-inner">
                 <div class="container">
                     <div class="title col-sm-8">
@@ -48,7 +49,25 @@
             </div>
         </div>
 
-        <!-- Content -->
+        <!-- INTRO -->
+        <div class="full-width section-intro">
+            <div class="container">
+                <p>The first (well) known UFO sighting was in 1947. While flying his small plane, Kenneth Arnold, saw a
+                    group of nine high-speed objects near Mount Rainier in Washington. He estimated the speed of the
+                    saucer-shaped objects as several thousand miles per hour. Since then, hundreds of thousands of
+                    UFO sightings have been submitted as possible proof of extraterrestrial evidence.\n
+
+                    The dataset that is used is from the National UFO Research Center. The dataset contains over
+                    80,000 reports of UFO sightings over the last century, and it was geolocated and time standardized
+                    by Sigmond Axel. The data contains city, state, time, description, and duration of each sighting
+                    and gives detailed descriptions of each sighting by Peter Davenport, the Director of the National
+                    UFO Reporting Center in Washington State.
+                </p>
+            </div>
+
+        </div>
+
+        <!-- MAP SLIDER -->
         <div id="topContent">
             <span style="display:inline-block;">
                 <input id="slider" type="range" min="1910" max="2014" step="1" value = "1910" style="width: 250px;"/>
@@ -57,7 +76,7 @@
             <span class="count">Sightings:</span>
         </div>
 
-        <!-- charts 1 -->
+        <!-- MAP PIE SCATTERPLOT -->
         <div>
             <span id="map"></span>
 
@@ -74,7 +93,7 @@
         </div>
 
 
-        <!-- charts 2 -->
+        <!-- AREA CHART -->
 
         <div id="area_chart"></div>
 
