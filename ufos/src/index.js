@@ -216,7 +216,7 @@ function choropleth(topo) { //topo
     return function update(data) {
         svg.selectAll('path')
             .data(data, function (d) {
-                if(d.state == getCurrentYear() && (d.country == "us" || d.country == "") && d.state != "") {
+                if(d.year == getCurrentYear() && (d.country == "us" || d.country == "") && d.state != "") {
                     return d.state
                 }
             })
