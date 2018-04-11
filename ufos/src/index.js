@@ -8,6 +8,7 @@ var svg = 0;
 var initialData = {};
 var sightingsByYearCountData = [];
 var components = [];
+var sightings = d3.select(null);
 
 // color for choropleth map and scatter plot
 var color = d3.scaleThreshold()
@@ -23,6 +24,12 @@ var comments = d3.select("#comments").append("div")
 
 //make the pie chart all grey
 var colorScheme = [
+    "#BFBFBF",
+    "#BFBFBF",
+    "#BFBFBF",
+    "#BFBFBF",
+    "#BFBFBF",
+    "#BFBFBF",
     "#BFBFBF",
     "#BFBFBF",
     "#BFBFBF",
@@ -52,19 +59,21 @@ function init() {
 function loadData() {
     d3.queue()   // queue function loads all external data files asynchronously
         .defer(d3.csv, "./data/scrubbed.csv", function (d) {
-            return {
-                year: d.year,
-                city: d.city,
-                state: d.state,
-                shape: d.shape,
-                latitude: +d.latitude,
-                longitude: +d.longitude,
-                datetime: d.datetime,
-                country: d.country,
-                durationsec: +d.durationsec,
-                durationhours: d.durationhours,
-                comments: d.comments,
-                dateposted: d.dateposted
+            if (d.state !== "" && d.country !== "") {
+                return {
+                    year: d.year,
+                    city: d.city,
+                    state: d.state,
+                    shape: d.shape,
+                    latitude: +d.latitude,
+                    longitude: +d.longitude,
+                    datetime: d.datetime,
+                    country: d.country,
+                    durationsec: +d.durationsec,
+                    durationhours: d.durationhours,
+                    comments: d.comments,
+                    dateposted: d.dateposted
+                }
             }
         })  // and associated data in csv file
         .defer(d3.json, './us-states.json') // TODO
@@ -86,8 +95,6 @@ function processData(error,results,features,topo) {
 
     initialData = results;
     var intSightingsByYearCountData = aggregationsByYear(initialData);
-
-    // barChart(); TODO
 
     components = [
         choropleth(topo), // draw map
@@ -178,6 +185,9 @@ function aggregationsByYear(data) {
     return flatAggregations;
 }
 
+/**************************************************************
+ * MAP
+ *************************************************************/
 /**
  * Create the choropleth map
  * @param topo
@@ -204,19 +214,44 @@ function choropleth(topo) { //topo
         .attr('height', height)
 
     // draw the map
-    svg.selectAll('path')
+    var states = svg.selectAll('path')
         //.data(features)
         .data(topojson.feature(topo, topo.objects.states).features)  // bind data to these non-existent objects
         .enter()
         .append('path') // prepare data to be appended to paths
         .attr('d', path) // create them using the svg path generator defined above
         .style('stroke', '#fff')
-        .style('stroke-width', 1)
+        .style('stroke-width', 1);
+
+    states.on("click", clicked);
+
+
+    function clicked(d) {
+        projection.fitExtent([[0,0], [width, height]], d);
+        path.projection(projection);
+        states.attr('d', path);
+        sightings.attr("cx", function(d) {
+            try {
+                return projection([d.longitude, d.latitude])[0];
+            } catch (e) {
+                // do nothing for now
+            }
+        })
+            .attr("cy", function(d){
+
+                try {
+                    return projection([d.longitude, d.latitude])[1];
+                } catch (e) {
+                    // do nothing for now
+                }
+            });
+    }
+
 
     return function update(data) {
         svg.selectAll('path')
             .data(data, function (d) {
-                if(d.year == getCurrentYear() && (d.country == "us" || d.country == "") && d.state != "") {
+                if(d.year == getCurrentYear() && d.country == "us" ) {
                     return d.state
                 }
             })
@@ -226,6 +261,124 @@ function choropleth(topo) { //topo
     }
 }
 
+/**
+ * Fills the map with locations of the sightings by year
+ */
+function addSightingsByYear() {
+
+    //remove all current sightings for updateCommands
+    d3.selectAll(".sightings").remove();
+
+    //get the current year
+    var selectedYear = getCurrentYear();
+
+    //filter our data: get sightings by year
+    var sightingsByYear = initialData.filter(
+        function(d) {
+            if(d.country == "us") {
+                return d.year == selectedYear;
+            }
+        }
+    );
+
+    //populate map with sightings by year (dots)
+    sightings = svg.selectAll(".sightings")
+        .data(sightingsByYear).enter()
+        .append("circle")
+        .attr("cx", function(d) {
+            try {
+                return projection([d.longitude, d.latitude])[0];
+            } catch (e) {
+                // TODO do nothing for now
+                // console.log(e);
+            }
+        })
+        .attr("cy", function(d){
+
+            try {
+                return projection([d.longitude, d.latitude])[1];
+            } catch (e) {
+                // TODO do nothing for now
+                // console.log(e);
+            }
+        })
+        .attr("r", 2)
+        .attr("class", "sightings");
+
+    // hover over / on demand details
+    sightings.on("mouseover",
+        function(d){
+            mapTooltip.transition()
+                .duration(250)
+                .style("opacity", 1);
+
+            mapTooltip.html(d.city + ", " + d.state + "</br>" + "<strong>Shape:</strong> " + d.shape + "</br>" + "<strong>Description: </strong>" + d.comments)
+                .style("left", (d3.event.pageX + 15) + "px")
+                .style("top", (d3.event.pageY - 28) + "px");
+
+            comments.transition()
+                .duration(250)
+                .style("opacity", 1);
+
+            comments.html("<strong>Comments:</strong> " +d.comments);
+        }
+    );
+
+    sightings.on("mouseout",
+        function(d){
+            mapTooltip.transition()
+                .duration(250)
+                .style("opacity", 0);
+
+            comments.transition()
+                .duration(250)
+                .style("opacity", 0);
+        }
+    );
+
+    //update the headers
+    updateHeaders(selectedYear, sightingsByYear);
+
+    //update the pie chart
+    updatePieChart("#chart", colorScheme, sightingsByYear);
+}
+
+/**
+ * Updates the year and count texts
+ * @param year
+ * @param data
+ */
+function updateHeaders(year, data){
+    //update year text
+    d3.select(".year").text("Year: " + year);
+
+    //get number of sightings in that year
+    var countByYear = d3.nest()
+        .key(
+            function(d){
+                return d.year;
+            }
+        )
+        .rollup(
+            function(values){
+                return values.length;
+            }
+        )
+        .entries(data);
+
+    //update number of sightings text
+    d3.select(".count").text(
+        function(d, i){
+            if(countByYear[i] == undefined)
+                return "Sightings: 0";
+            return "Sightings: " + countByYear[i].value
+        }
+    );
+}
+
+/**************************************************************
+ * SCATTER PLOT
+ *************************************************************/
 function scatterplot(onBrush) {
     var margin = { top: 10, right: 15, bottom: 40, left: 75 }
     var swidth = 380 - margin.left - margin.right;
@@ -329,120 +482,11 @@ function getCurrentYear() {
     return document.getElementById("slider").value;
 }
 
-/**
- * Fills the map with locations of the sightings by year
- */
-function addSightingsByYear() {
 
-    //remove all current sightings for updateCommands
-    d3.selectAll(".sightings").remove();
 
-    //get the current year
-    var selectedYear = getCurrentYear();
-
-    //filter our data: get sightings by year
-    var sightingsByYear = initialData.filter(
-        function(d) {
-            if(d.country == "us") {
-                return d.year == selectedYear;
-            }
-        }
-    );
-
-    //populate map with sightings by year (dots)
-    var sightings = svg.selectAll(".sightings")
-        .data(sightingsByYear).enter()
-        .append("circle")
-        .attr("cx", function(d) {
-            try {
-                return projection([d.longitude, d.latitude])[0];
-            } catch (e) {
-                // TODO do nothing for now
-                // console.log(e);
-            }
-        })
-        .attr("cy", function(d){
-
-            try {
-                return projection([d.longitude, d.latitude])[1];
-            } catch (e) {
-                // TODO do nothing for now
-                // console.log(e);
-            }
-        })
-        .attr("r", 2)
-        .attr("class", "sightings");
-
-    // hover over / on demand details
-    sightings.on("mouseover",
-        function(d){
-            mapTooltip.transition()
-                .duration(250)
-                .style("opacity", 1);
-
-            mapTooltip.html(d.city + ", " + d.state + "</br>" + "<strong>Shape:</strong> " + d.shape + "</br>" + "<strong>Description: </strong>" + d.comments)
-                .style("left", (d3.event.pageX + 15) + "px")
-                .style("top", (d3.event.pageY - 28) + "px");
-
-            comments.transition()
-                .duration(250)
-                .style("opacity", 1);
-
-            comments.html("<strong>Comments:</strong> " +d.comments);
-        }
-    );
-
-    sightings.on("mouseout",
-        function(d){
-            mapTooltip.transition()
-                .duration(250)
-                .style("opacity", 0);
-
-            comments.transition()
-                .duration(250)
-                .style("opacity", 0);
-        }
-    );
-
-    //update the headers
-    updateHeaders(selectedYear, sightingsByYear);
-
-    //update the pie chart
-    updatePieChart("#chart", colorScheme, sightingsByYear);
-}
-
-/**
- * Updates the year and count texts
- * @param year
- * @param data
- */
-function updateHeaders(year, data){
-    //update year text
-    d3.select(".year").text("Year: " + year);
-
-    //get number of sightings in that year
-    var countByYear = d3.nest()
-        .key(
-            function(d){
-                return d.year;
-            }
-        )
-        .rollup(
-            function(values){
-                return values.length;
-            }
-        )
-        .entries(data);
-
-    //update number of sightings text
-    d3.select(".count").text(
-        function(d, i){
-            if(countByYear[i] == undefined)
-                return "Sightings: 0";
-            return "Sightings: " + countByYear[i].value
-        }
-    );
-}
+/**************************************************************
+ * PIE CHART
+ *************************************************************/
 
 /**
  * Updates the pie chart on slider.
@@ -480,14 +524,14 @@ function updatePieChart(domElementToAppendTo, scheme, sightings){
         {label:"disk",		value: 0},
         {label:"fireball",	value: 0},
         {label:"formation",	value: 0},
-        {label:"oval",	value: 0},
+        {label:"oval",	    value: 0},
         {label:"pyramid",	value: 0},
         {label:"rectangle",	value: 0},
         {label:"sphere",	value: 0},
         {label:"triangle",	value: 0},
         {label:"other",		value: 0},
         {label:"unknown",	value: 0},
-        {label:"light",	value: 0},
+        {label:"light",	    value: 0},
     ];
 
     //update values for shapesData
@@ -606,18 +650,6 @@ function updatePieChart(domElementToAppendTo, scheme, sightings){
                 .style('filter', 'none')
         }
     );
-
-}
-
-
-/**************************************************************
- * BAR CHART
- *************************************************************/
-
-/**
- * Brushing bar chart
- */
-function barChart() {
 
 }
 
