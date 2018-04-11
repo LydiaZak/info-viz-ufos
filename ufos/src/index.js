@@ -21,6 +21,20 @@ var mapTooltip = d3.select("body").append("div")
 var comments = d3.select("#comments").append("div")
     .attr("class", "comments");
 
+//make the pie chart all grey
+var colorScheme = [
+    "#BFBFBF",
+    "#BFBFBF",
+    "#BFBFBF",
+    "#BFBFBF",
+    "#BFBFBF",
+    "#BFBFBF",
+    "#BFBFBF",
+    "#BFBFBF",
+    "#BFBFBF",
+    "#BFBFBF"
+];
+
 
 /**
  * Initialize.
@@ -53,8 +67,8 @@ function loadData() {
                 dateposted: d.dateposted
             }
         })  // and associated data in csv file
-        .defer(d3.json, 'us-states.json') // TODO
-        .defer(d3.json, "us.json")  // our geometries
+        .defer(d3.json, './us-states.json') // TODO
+        .defer(d3.json, "./us.json")  // our geometries
         .await(processData);   // once all files are loaded, call the processData function passing
                                // the loaded objects as arguments
 }
@@ -210,8 +224,8 @@ function choropleth(topo) { //topo
 
 function scatterplot(onBrush) {
     var margin = { top: 10, right: 15, bottom: 40, left: 75 }
-    var swidth = 480 - margin.left - margin.right
-    var sheight = 350 - margin.top - margin.bottom
+    var swidth = 380 - margin.left - margin.right;
+    var sheight = 250 - margin.top - margin.bottom;
 
     var x = d3.scaleLinear()
         .range([0, swidth])
@@ -380,6 +394,8 @@ function addSightingsByYear() {
     //update the headers
     updateHeaders(selectedYear, sightingsByYear);
 
+    //update the pie chart
+    updatePieChart("#chart", colorScheme, sightingsByYear);
 }
 
 /**
@@ -413,6 +429,171 @@ function updateHeaders(year, data){
             return "Sightings: " + countByYear[i].value
         }
     );
+}
+
+/**
+ * Updates the pie chart on slider.
+ * @param domElementToAppendTo
+ * @param scheme
+ * @param sightings
+ */
+function updatePieChart(domElementToAppendTo, scheme, sightings){
+    // clearing DOM elements
+    d3.selectAll(".tooltipChart").remove();
+    d3.selectAll(".rect").remove();
+    d3.selectAll(".arc").remove();
+    d3.select(domElementToAppendTo).select("svg").remove();
+
+    var countByShape = d3.nest()
+        .key(
+            function(d){
+                return d.shape;
+            }
+        )
+        .rollup(
+            function(values){
+                return values.length;
+            }
+        )
+        .entries(sightings);
+
+    // init the counts to 0
+    var shapesData = [
+        {label:"chevron",	value: 0},
+        {label:"cigar",		value: 0},
+        {label:"cross",		value: 0},
+        {label:"cylinder",	value: 0},
+        {label:"diamond",	value: 0},
+        {label:"disk",		value: 0},
+        {label:"fireball",	value: 0},
+        {label:"formation",	value: 0},
+        {label:"oval",	value: 0},
+        {label:"pyramid",	value: 0},
+        {label:"rectangle",	value: 0},
+        {label:"sphere",	value: 0},
+        {label:"triangle",	value: 0},
+        {label:"other",		value: 0},
+        {label:"unknown",	value: 0},
+        {label:"light",	value: 0},
+    ];
+
+    //update values for shapesData
+    for(var i = 0; i < countByShape.length; i++){
+        for(var j = 0; j < shapesData.length; j++){
+            if(countByShape[i].key == shapesData[j].label){
+                shapesData[j].value = countByShape[i].value;
+                continue;
+            }
+        }
+    }
+
+    var margin = {top: 50, bottom: 50, left: 50, right: 50};
+    var width = 350 - margin.left - margin.right, height = width, radius = Math.min(width, height) / 2;
+
+    shapesData.forEach(
+        function(item){
+            item.enabled = true;
+        }
+    );
+
+    var color = d3.scaleOrdinal().range(scheme);
+    var chart = d3.select(domElementToAppendTo)
+        .append("svg")
+        .attr("width", width)
+        .attr("height", height)
+        .append("g")
+        .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+    var arc = d3.arc()
+        .outerRadius(radius - 10)
+        .innerRadius(50);
+
+    var pie = d3.pie()
+        .sort(null)
+        .value(function(d) { return d.value; });
+
+    var tooltip = d3.select(domElementToAppendTo)
+        .append('div')
+        .attr('class', 'tooltipChart');
+
+    tooltip.append('div')
+        .attr('class', 'label');
+
+    tooltip.append('div')
+        .attr('class', 'count');
+
+    tooltip.append('div')
+        .attr('class', 'percent');
+
+    var g = chart.selectAll('.arc')
+        .data(pie(shapesData))
+        .enter().append('g')
+        .attr("class", "arc");
+
+    g.append("path")
+        .attr('d', arc)
+        .attr('fill',
+            function(d, i) {
+                return color(d.data.label);
+            }
+        )
+        .each(
+            function(d){
+                this._current = d;
+            }
+        );
+
+    g.on('mouseover',
+        function(d){
+            var total = d3.sum(shapesData.map(
+                function(d){
+                    if(d.enabled)
+                        return d.value;
+                    return 0;
+                }
+            ));
+
+            var percent = Math.round(1000 * d.data.value / total) / 10;
+            tooltip.select('.label').html(d.data.label.toUpperCase()).style('color','black');
+            tooltip.select('.count').html(d.data.value);
+            tooltip.select('.percent').html(percent + '%');
+
+            tooltip.style('display', 'block');
+            tooltip.style('opacity',2);
+
+            d3.select(this)
+                .interrupt()
+                .transition()
+                .duration(300)
+                .ease(d3.easeCubic)
+                .attr('transform', 'scale(1.05)')
+
+
+        }
+    );
+
+    g.on('mousemove',
+        function(d){
+            tooltip.style('top', (d3.event.layerY + 10) + 'px')
+                .style('left', (d3.event.layerX - 25) + 'px');
+        }
+    );
+
+    g.on('mouseout',
+        function(){
+            tooltip.style('display', 'none');
+            tooltip.style('opacity',0);
+
+            d3.select(this)
+                .interrupt()
+                .transition()
+                .duration(300)
+                .ease(d3.easeCubic)
+                .attr('transform', 'scale(1)')
+                .style('filter', 'none')
+        }
+    );
+
 }
 
 /**

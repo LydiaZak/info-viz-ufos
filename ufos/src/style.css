@@ -1,7 +1,7 @@
 /* header */
 .header .header-inner {
-    padding-top: 10px;
-    padding-bottom: 15px;
+    padding-top: 5px;
+    padding-bottom: 5px;
     color: #333;
     background-color: #557076;
     border-bottom: 1px solid #e5e5e5;
@@ -10,7 +10,7 @@
 
 h1 {
     color: white !important;
-    font-size: 50px !important;
+    font-size: 36px !important;
     padding-top: 20px;
 }
 
@@ -43,7 +43,7 @@ body {
 #topContent {
     font-family:sans-serif;
     font-weight:normal;
-    margin: 5px;
+    margin-left: 20px;
 }
 
 /* map styling*/
@@ -100,6 +100,7 @@ span.year, span.count {
     font-weight:normal;
     position: absolute;
     padding: 12px;
+    box-shadow: 0 0 5px #999999;
     background-color: darkslategray;
     color:white;
     font-size:11px;
@@ -114,5 +115,41 @@ span.year, span.count {
     margin-top: -30px;
 }
 
+/**
+pie charts
+ */
+.tooltipChart{
+    font-family:sans-serif;
+    font-weight:normal;
+    background: darkslategray;
+    box-shadow: 0 0 5px #999999;
+    color: white;
+    font-size: 11px;
+    border-radius: 8px;
+    left: 130px;
+    padding: 10px;
+    position: absolute;
+    text-align: center;
+    top: 95px;
+    width: 80px;
+    z-index: 10;
+    display: block;
+    opacity: 0;
+}
+
+.arc path {
+    stroke: #fff;
+    stroke-width: 2;
+}
+
+.arc path:hover{
+    fill: #4c4c67;
+    stroke: #4c4c67;
+}
 
 
+#chart {
+    width: 400px;
+    height: 300px;
+    float: left;
+}
