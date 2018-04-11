@@ -157,4 +157,17 @@ span.year, span.count {
     width: 400px;
     height: 300px;
     float: left;
+    padding-left: 80px;
+    margin-top: -10px;
 }
+
+/* **********************************
+    AREA CHART
+ ************************************/
+.background {
+    fill: none;
+    pointer-events: all;
+}
+
+path { stroke: #333; stroke-width: 1; }
+path:hover { stroke-width: 3; }

@@ -85,7 +85,9 @@ function processData(error,results,features,topo) {
     }
 
     initialData = results;
-    sightingsByYearCountData = aggregationsByYear(initialData);
+    var intSightingsByYearCountData = aggregationsByYear(initialData);
+
+    // barChart(); TODO
 
     components = [
         choropleth(topo), // draw map
@@ -95,7 +97,7 @@ function processData(error,results,features,topo) {
     // TODO fix
     function update() {
         components.forEach(function (component) {
-            component(sightingsByYearCountData)
+            component(intSightingsByYearCountData)
         })
     }
 
@@ -111,6 +113,8 @@ function processData(error,results,features,topo) {
     update()
     addSightingsByYear();
 }
+
+
 
 
 /**
@@ -515,7 +519,7 @@ function updatePieChart(domElementToAppendTo, scheme, sightings){
 
     var arc = d3.arc()
         .outerRadius(radius - 10)
-        .innerRadius(50);
+        .innerRadius(40);
 
     var pie = d3.pie()
         .sort(null)
@@ -605,15 +609,32 @@ function updatePieChart(domElementToAppendTo, scheme, sightings){
 
 }
 
+
+/**************************************************************
+ * BAR CHART
+ *************************************************************/
+
 /**
- * Update the map if slide is moved
+ * Brushing bar chart
+ */
+function barChart() {
+
+}
+
+
+/**
+ * Upyear the map if slide is moved
  */
 d3.select("#slider").on("input", function() {
     addSightingsByYear();
+
+    var currData = aggregationsByYear(initialData);
+    components.forEach(function (component) {
+        component(currData)
+    })
 });
 
 d3.select(self.frameElement).style("height", "675px");
-
 
 window.onload = init();  // magic starts here
 
