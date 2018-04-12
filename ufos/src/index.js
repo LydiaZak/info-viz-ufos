@@ -68,7 +68,7 @@ function loadData() {
                 return {
                     year: d.year,
                     city: d.city,
-                    stateAbbr: d.state,
+                    stateAbbr: d.state.toUpperCase(),
                     state: state,
                     shape: d.shape,
                     latitude: +d.latitude,
@@ -123,7 +123,7 @@ function processData(error,results,topo) {
         var clear = x0 === x1 || y0 === y1
         sightingsByYearCountData.forEach(function (d) { // data
             // d.filtered = clear ? false
-            //     : d.avgDurationSecs < x0 || d.avgDurationSecs > x1 || d.sightingCountsByState < y0 || d.sightingCountsByState > y1
+            //      : d.avgDurationSecs < x0 || d.avgDurationSecs > x1 || d.sightingCountsByState < y0 || d.sightingCountsByState > y1
 
             // TODO
             var flatAggregations = [];
@@ -873,7 +873,7 @@ function barChart(data) {
     var keyValsCountByState = d3.nest()
         .key(
             function (d) {
-                return d.state;
+                return d.stateAbbr;
             }
         )
         .rollup(
@@ -905,10 +905,6 @@ function barChart(data) {
     var x = d3.scaleBand().rangeRound([0, width]).padding(0.1),
         y = d3.scaleLinear().rangeRound([height, 0]);
 
-
-    var colours = d3.scaleOrdinal()
-        .range(["#6F257F", "#CA0D59"]);
-
     var svg = d3.select("#barChart").append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom);
@@ -932,8 +928,6 @@ function barChart(data) {
         .attr("y", 6)
         .attr("dy", "0.71em")
         .attr("text-anchor", "end");
-        //.attr("fill", "#5D6971");
-        //.text("sightings (1910-2014)");
 
     g.selectAll(".bar")
         .data(countByState)
