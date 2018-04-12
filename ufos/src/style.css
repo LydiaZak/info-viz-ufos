@@ -242,3 +242,16 @@ path:hover { stroke-width: 3px; }
 #barChart, #area_chart {
     text-align: center;
 }
+
+/* **********************************
+    TABLE
+ ************************************/
+.table .bottom-border {
+    border-bottom: 2px solid #ddd!important;
+}
+
+.table-caption {
+    margin: .5em 0;
+    font-size: .8em;
+    text-align: center;
+}

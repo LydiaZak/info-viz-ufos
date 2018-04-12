@@ -155,17 +155,88 @@
             <div class="container">
                 <h3>Task Analysis</h3>
                 <p>
-                    Blah
+                    Having decided to use the the National UFO Report Center's dataset for our project, we conducted a
+                    phone interview with its head, Peter Davenport to help us understand his website and dataset better.
+                    The current iteration of the website was set up in 1995 and hosts approximately 145,000 alleged
+                    sightings, with a noticeable uptick since the option to report a sighting via the internet became
+                    available. Currently there is a weekly UFO update on Coast to Coast AM radio and the website boasts
+                    many details with images of suspected sightings, however no visualizations of the dataset as a whole.
+                    After this interview we were able to decide which tasks were most important for us to satisfy
+                    in our visualization:
                 </p>
+                <div class="table-caption">Task Analysis</div>
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th class="bottom-border">Task</th>
+                        <th class="bottom-border">Abstraction</th>
+                        <th class="bottom-border">Level</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td>Observe all UFO sightings of 2017</td>
+                        <td>Analyze/Consume/Discover</td>
+                        <td>High</td>
+                    </tr>
+                    <tr>
+                        <td>Observe how the UFO sightings occur throughout the year</td>
+                        <td>Analyze/Consume/Present</td>
+                        <td>High</td>
+                    </tr>
+                    <tr>
+                        <td>Curiosity stimulation</td>
+                        <td>Analyze/Consume/Enjoy</td>
+                        <td>High</td>
+                    </tr>
+                    <tr>
+                        <td>Look for areas with high number of sightings</td>
+                        <td>Search/Explore</td>
+                        <td>Mid</td>
+                    </tr>
+                    <tr>
+                        <td>Are there clusters of UFO sightings according to geographic area?</td>
+                        <td>Cluster</td>
+                        <td>Low</td>
+                    </tr>
+                    <tr>
+                        <td>Learn details of sighting (e.g. time, shape, description)</td>
+                        <td>Retrieve Value</td>
+                        <td>Low</td>
+                    </tr>
+                    <tr>
+                        <td>Only see sightings of a certain duration</td>
+                        <td>Filter</td>
+                        <td>Low</td>
+                    </tr>
+                    <tr>
+                        <td>When did the sightings of a particular area (e.g. my hometown) occur?</td>
+                        <td>Filter</td>
+                        <td>Low</td>
+                    </tr>
+                    <tr>
+                        <td>What state has the most sightings?</td>
+                        <td>Find Extremeum</td>
+                        <td>Low</td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
-        <!-- Design Process -->
+        <!-- DESIGN PROCESS -->
         <div class="full-width section-content">
             <div class="container">
                 <h3>Design Process</h3>
                 <p>
-                    Blah
+                    Based on the tasks outlined above, we created sketches that we debated extensively before
+                    incorporating the best features of those sketches into a final workflow to keep as a goal.
+                    Ultimately we decided a choropleth map of the US with points displayed by their locations and
+                    a slider bar for the year of the sightings would be effective. Adding a feature to be able to
+                    zoom in on a localized area - be it a state or more specific - would be essential to sorting
+                    through the abundance of data. We had 3 iterations of design sketches. Please see our milestones
+                    in our <a href="https://drive.google.com/drive/u/1/folders/16oy4M_LlNojWGV5_KAeLAwWVVAQtiOmo">Google Drive</a>.
+
                 </p>
             </div>
         </div>
@@ -189,8 +260,10 @@
                     we have the tools to understand the areas of the country that are most likely to have UFO sightings
                     cumulatively and year over year, the most common UFO shape description, and how duration of the
                     sighting comes into the picture in order to help people formulate their own opinions. For future
-                    enhancements, we'd like to overlay other data such as weather, airport locations, lighthouse locations,
-                    and government research centers to help validate the sighting.
+                    enhancements, we'd like to associate historical weather data with the dates of the alleged UFO sightings.
+                    Additionally, plotting sources of red flags such as to help identify locations of  airport, lighthouse,
+                    and government research centers could help validate the sighting. The biggest challenge at the moment
+                    is acquiring a suitable dataset containing this information in a reasonable format.
                 </p>
             </div>
         </div>

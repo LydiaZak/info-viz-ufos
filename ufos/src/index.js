@@ -78,8 +78,7 @@ function loadData() {
                 }
             }
         })  // and associated data in csv file
-        .defer(d3.json, './us-states.json') // TODO may not need this
-        .defer(d3.json, "./us.json")  // our geometries
+        .defer(d3.json, './us-states.json') // our geometries
         .await(processData);   // once all files are loaded, call the processData function passing
                                // the loaded objects as arguments
 }
@@ -90,7 +89,7 @@ function loadData() {
  * @param topo
  * @param data
  */
-function processData(error,results,features,topo) {
+function processData(error,results,topo) {
     if (error) {
         throw error
     }
@@ -244,7 +243,7 @@ function choropleth(topo) { //topo
     // draw the map
     var states = svg.selectAll('path')
         //.data(features)
-        .data(topojson.feature(topo, topo.objects.states).features)  // bind data to these non-existent objects
+        .data(topo.features)  // bind data to these non-existent objects
         .enter()
         .append('path') // prepare data to be appended to paths
         .attr('d', path) // create them using the svg path generator defined above
