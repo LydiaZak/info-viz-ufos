@@ -649,7 +649,7 @@ function updatePieChart(domElementToAppendTo, scheme, sightings){
             ));
 
             var percent = Math.round(1000 * d.data.value / total) / 10;
-            tooltip.select('.label').html(d.data.label.toUpperCase()).style('color','black');
+            tooltip.select('.label').html(d.data.label.toUpperCase()).style('color','#bdbdbd');
             tooltip.select('.count').html(d.data.value);
             tooltip.select('.percent').html(percent + '%');
 
