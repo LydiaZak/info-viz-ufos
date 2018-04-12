@@ -11,8 +11,8 @@ var zoom = true;
 
 // color for choropleth map and scatter plot
 var color = d3.scaleThreshold()
-    .domain([10, 50, 100])
-    .range(['#8c96c6', '#8c6bb1', '#88419d', '#6e016b']);
+    .domain([50, 150, 250])
+    .range(['#8c6bb1', '#88419d', '#810f7c', '#4d004b']);
 
 var mapTooltip = d3.select("body").append("div")
     .attr("class", "tooltipMap")
@@ -98,6 +98,8 @@ function processData(error,results,features,topo) {
     //aggregationsByYear(initialData);
 
     area_chart(initialData);
+
+    barChart(initialData);
 
     components = [
         choropleth(topo), // draw map
@@ -217,8 +219,8 @@ function aggregationsByYear(data) {
  * @returns {update}
  */
 function choropleth(topo) { //topo
-    var width = 800;
-    var height = 500;
+    var width = 750;
+    var height = 450;
 
     projection = d3.geoAlbersUsa()
         //.translate([width/2, height/2]) // translate to center of screen
@@ -379,6 +381,8 @@ function addSightingsByYear() {
 function updateHeaders(year, data){
     //update year text
     d3.select(".year").text("Year: " + year);
+
+    d3.select("#yearText").text(year);
 
     //get number of sightings in that year
     var countByYear = d3.nest()
@@ -687,6 +691,7 @@ function updatePieChart(domElementToAppendTo, scheme, sightings){
 
 function area_chart(data) {
 
+    // aggregate counts
     var us_data = data.filter(
         function (d) {
             return (d.country == "us")
@@ -790,7 +795,7 @@ function area_chart(data) {
         .attr('x', 0)
         .attr('y', 10)
         .style('text-anchor', 'end')
-        .style('fill', '#000')
+        //.style('fill', '#000')
         .style('font-weight', 'bold')
         .text('sightings count');
 
@@ -819,7 +824,9 @@ function area_chart(data) {
 
 
     function brushed() {
-        if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom") return; // ignore brush-by-zoom
+        if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom") {
+            return; // ignore brush-by-zoom
+        }
         var s = d3.event.selection || x2.range();
         x.domain(s.map(x2.invert, x2));
         focus.select(".area").attr("d", area);
@@ -838,6 +845,102 @@ function area_chart(data) {
         context.select(".brush").call(brush.move, x.range().map(t.invertX, t));
     }
 
+}
+
+
+/*****************************************************************
+ * Bar chart
+ ************************************************************ */
+function barChart(data) {
+
+    var us_data = data.filter(
+        function (d) {
+            return (d.country == "us")
+        }
+    );
+
+    var keyValsCountByState = d3.nest()
+        .key(
+            function (d) {
+                return d.state;
+            }
+        )
+        .rollup(
+            function (values) {
+                return values.length;
+            }
+        )
+        .entries(us_data);
+
+
+    var countByState = [];
+    for (var i = 0; i < keyValsCountByState.length; i++) {
+        var obj = keyValsCountByState[i];
+        countByState.push({
+            state: obj.key,
+            value: obj.value
+        });
+    }
+
+    console.log(countByState)
+    var countByState = _.sortBy(countByState, 'state' );
+
+    var margin = {top: 20, right: 20, bottom: 30, left: 50},
+        width = 1000 - margin.left - margin.right,
+        height = 100 - margin.top - margin.bottom;
+
+    var tooltip = d3.select("body").append("div").attr("class", "barToolTip");
+
+    var x = d3.scaleBand().rangeRound([0, width]).padding(0.1),
+        y = d3.scaleLinear().rangeRound([height, 0]);
+
+
+    var colours = d3.scaleOrdinal()
+        .range(["#6F257F", "#CA0D59"]);
+
+    var svg = d3.select("#barChart").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom);
+
+    var g = svg.append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    x.domain(countByState.map(function(d) { return d.state; }));
+    y.domain([0, d3.max(countByState, function(d) { return d.value; })]);
+
+    g.append("g")
+        .attr("class", "axis axis--x")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x));
+
+    g.append("g")
+        .attr("class", "axis axis--y")
+        .call(d3.axisLeft(y).ticks(3).tickFormat(function(d) { return d; }).tickSizeInner([-width]))
+        .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 6)
+        .attr("dy", "0.71em")
+        .attr("text-anchor", "end");
+        //.attr("fill", "#5D6971");
+        //.text("sightings (1910-2014)");
+
+    g.selectAll(".bar")
+        .data(countByState)
+        .enter().append("rect")
+        .attr("x", function(d) { return x(d.state); })
+        .attr("y", function(d) { return y(d.value); })
+        .attr("width", x.bandwidth())
+        .attr("height", function(d) { return height - y(d.value); })
+        //.attr("fill", function(d) { return colours(d.state); }) TODO
+        .attr("class", "bar"); // TODO
+        // .on("mousemove", function(d) {
+        //     tooltip
+        //         .style("left", d3.event.pageX - 50 + "px")
+        //         .style("top", d3.event.pageY - 70 + "px")
+        //         .style("display", "inline-block")
+        //         .html((d.state) + "<br>" + (d.value));
+        // })
+        // .on("mouseout", function(d){ tooltip.style("display", "none");});
 }
 
 

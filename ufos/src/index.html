@@ -28,10 +28,10 @@
 
     </head>
 
-    <!-- Body -->
+    <!-- BODY -->
     <body>
 
-        <!-- Header -->
+        <!-- HEADER -->
         <div class="full-width header">
             <div class="header-inner">
                 <div class="container">
@@ -49,13 +49,19 @@
             </div>
         </div>
 
+        <!-- BAR CHART -->
+        <div class="container">
+            <div style="text-align:center;font-size:10px;"><strong>Sightings per State (1910-2018)</strong></div>
+            <div id="barChart"></div>
+        </div>
+
         <!-- INTRO -->
         <div class="full-width section-intro">
             <div class="container">
                 <p>The first (well) known UFO sighting was in 1947. While flying his small plane, Kenneth Arnold, saw a
                     group of nine high-speed objects near Mount Rainier in Washington. He estimated the speed of the
                     saucer-shaped objects as several thousand miles per hour. Since then, hundreds of thousands of
-                    UFO sightings have been submitted as possible proof of extraterrestrial evidence.\n
+                    UFO sightings have been submitted as possible proof of extraterrestrial evidence.<br/><br/>
 
                     The dataset that is used is from the National UFO Research Center. The dataset contains over
                     80,000 reports of UFO sightings over the last century, and it was geolocated and time standardized
@@ -64,38 +70,52 @@
                     UFO Reporting Center in Washington State.
                 </p>
             </div>
+        </div>
 
+        <!-- AREA CHART -->
+        <div class="container">
+            <div id="area_chart"></div>
+        </div>
+
+        <!-- CONTENT  -->
+        <div class="full-width section-content">
+            <div class="container">
+                <p>The number of reported UFO Sightings has drastically increased in the last 20 years, nearly doubling since
+                    2001. What areas in the country are most likely to have UFO sightings? How have the sightings
+                    changed year over year? What are common shapes or descriptions? In attempt to answer these questions,
+                    we've created data visualizations using D3 in order to better understand these questions.<br/><br/>
+
+                    The map, scatter plot and pie chart shows details on UFO sightings during <span id="yearText"></span>.
+                    Move the slider in order to update the map, plot, and pie. Hover over a dot to see the location,
+                    shape of the object, and description of the sightings. The chloropleth map is based on the number of sightings reported.
+                    Click on a state to zoom in on the sightings.
+                </p>
+            </div>
         </div>
 
         <!-- MAP SLIDER -->
-        <div id="topContent">
-            <span style="display:inline-block;">
-                <input id="slider" type="range" min="1910" max="2014" step="1" value = "1910" style="width: 250px;"/>
-            </span>
-            <span class="year">Year:</span>
-            <span class="count">Sightings:</span>
+        <div id="full-width topContent">
+            <div class="container">
+                <span style="display:inline-block;padding-left: 50px;">
+                    <input id="slider" type="range" min="1910" max="2014" step="1" value = "1910" style="width: 250px;"/>
+                </span>
+                <span class="year">Year:</span>
+                <span class="count">Sightings:</span>
+            </div>
         </div>
 
         <!-- MAP PIE SCATTERPLOT -->
-        <div>
+        <div class="container">
             <span id="map"></span>
-
             <!-- <div id="comments"></div>-->
-
             <div>
                 <div id="scatterplot"></div>
-
                 <div id = "pie">
-                    <!-- Pie Chart //-->
                     <div id = "chart"> </div>
                 </div>
             </div>
         </div>
 
-
-        <!-- AREA CHART -->
-
-        <div id="area_chart"></div>
 
         <script src="./index.js" type="text/javascript"></script>
     </body>

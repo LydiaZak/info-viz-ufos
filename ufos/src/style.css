@@ -10,6 +10,11 @@
     margin-bottom: 1em;
 }
 
+.section-content {
+    margin-bottom: 1em;
+    margin-top: 4em;
+}
+
 h1 {
     color: white !important;
     font-size: 36px !important;
@@ -28,6 +33,15 @@ h1 {
     padding-left: 15px;
     padding-right: 15px;
     width: 750px;
+}
+
+.svg-container {
+    display: inline-block;
+    position: relative;
+    width: 100%;
+    padding-bottom: 100%;
+    vertical-align: middle;
+    overflow: hidden;
 }
 
 @font-face {
@@ -158,7 +172,7 @@ span.year, span.count {
 
 .arc path {
     stroke: #fff;
-    stroke-width: 2;
+    stroke-width: 2px;
 }
 
 .arc path:hover{
@@ -168,7 +182,7 @@ span.year, span.count {
 
 
 #chart {
-    width: 400px;
+    width: 300px;
     height: 300px;
     float: left;
     padding-left: 80px;
@@ -183,11 +197,11 @@ span.year, span.count {
     pointer-events: all;
 }
 
-path { stroke: #333; stroke-width: 1; }
-path:hover { stroke-width: 3; }
+path { stroke: #6e9598; stroke-width: 1px; }
+path:hover { stroke-width: 3px; }
 
 .area {
-    fill: #7a0177;
+    fill: #6e9598;
     clip-path: url(#clip);
 }
 
@@ -195,4 +209,34 @@ path:hover { stroke-width: 3; }
     cursor: move;
     fill: none;
     pointer-events: all;
+}
+
+/* **********************************
+    BAR CHART
+ ************************************/
+.barToolTip {
+    font-family:sans-serif;
+    position: absolute;
+    display: none;
+    min-width: 80px;
+    box-shadow: 0 0 5px #999999;
+    background-color: darkslategray;
+    color:white;
+    padding: 14px;
+    font-size:11px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.bar {
+    fill: #4c4c67;
+}
+
+.axis path,
+.axis line {
+    display: none;
+}
+
+#barChart, #area_chart {
+    text-align: center;
 }
