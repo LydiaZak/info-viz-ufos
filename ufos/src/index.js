@@ -62,10 +62,14 @@ function loadData() {
     d3.queue()   // queue function loads all external data files asynchronously
         .defer(d3.csv, "./data/scrubbed.csv", function (d) {
             if (d.state !== "" && d.country !== "") {
+
+                var state = abbrState(d.state, 'name');
+
                 return {
                     year: d.year,
                     city: d.city,
-                    state: d.state,
+                    stateAbbr: d.state,
+                    state: state,
                     shape: d.shape,
                     latitude: +d.latitude,
                     longitude: +d.longitude,
@@ -284,9 +288,7 @@ function choropleth(topo) { //topo
     return function update(data) {
         svg.selectAll('path')
             .data(data, function (d) {
-                if(d.year == getCurrentYear() && d.country == "us" ) {
-                    return d.state
-                }
+                return d.state || d.properties.name
             })
             .style('fill', function (d) {
                 return d.filtered ? '#ddd' : color(d.sightingCountsByState)
