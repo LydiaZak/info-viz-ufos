@@ -467,7 +467,7 @@ function scatterplot(onBrush) {
         .style('text-anchor', 'end')
         .style('fill', '#000')
         .style('font-weight', 'bold')
-        .text('sightings count')
+        .text('# of sightings')
 
     svg.append('g')
         .attr('class', 'brush')
@@ -577,7 +577,7 @@ function updatePieChart(domElementToAppendTo, scheme, sightings){
     }
 
     var margin = {top: 50, bottom: 50, left: 50, right: 50};
-    var width = 350 - margin.left - margin.right, height = width, radius = Math.min(width, height) / 2;
+    var width = 300 - margin.left - margin.right, height = width, radius = Math.min(width, height) / 2;
 
     shapesData.forEach(
         function(item){
@@ -595,7 +595,7 @@ function updatePieChart(domElementToAppendTo, scheme, sightings){
 
     var arc = d3.arc()
         .outerRadius(radius - 10)
-        .innerRadius(40);
+        .innerRadius(35);
 
     var pie = d3.pie()
         .sort(null)

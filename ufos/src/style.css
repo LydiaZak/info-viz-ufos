@@ -182,11 +182,9 @@ span.year, span.count {
 
 
 #chart {
-    width: 300px;
-    height: 300px;
+    width: 200px;
+    height: 250px;
     float: left;
-    padding-left: 80px;
-    margin-top: -10px;
 }
 
 /* **********************************
