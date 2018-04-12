@@ -335,6 +335,7 @@ function addSightingsByYear() {
             }
         })
         .attr("r", 2)
+        .attr("fill", 2)
         .attr("class", "sightings");
 
     // hover over / on demand details
