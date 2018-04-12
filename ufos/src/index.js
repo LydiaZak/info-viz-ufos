@@ -266,7 +266,14 @@ function choropleth(topo) { //topo
             path.projection(projection);
         }
 
-        states.attr('d', path);
+        // TODO - issue with map zoom
+        states.attr('d', path)
+            .data(d, function () {
+                return d.state || d.properties.name
+            })
+            .style('fill', function () {
+                return d.filtered ? '#ddd' : color(d.sightingCountsByState)
+            });
         sightings.attr("cx", function(d) {
             try {
                 return projection([d.longitude, d.latitude])[0];
@@ -936,7 +943,6 @@ function barChart(data) {
         .attr("y", function(d) { return y(d.value); })
         .attr("width", x.bandwidth())
         .attr("height", function(d) { return height - y(d.value); })
-        //.attr("fill", function(d) { return colours(d.state); }) TODO
         .attr("class", "bar")
         .on("mousemove", function(d) {
             tooltip
@@ -957,6 +963,8 @@ d3.select("#slider").on("input", function() {
 
     var currData = aggregationsByYear(initialData);
 
+    // reset the map
+    svg.selectAll("path").style('fill', "black");
     components.forEach(function (component) {
         component(currData)
     })
