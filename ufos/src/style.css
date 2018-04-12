@@ -230,6 +230,10 @@ path:hover { stroke-width: 3px; }
     fill: #4c4c67;
 }
 
+.bar:hover {
+    fill: #6e9598;
+}
+
 .axis path,
 .axis line {
     display: none;

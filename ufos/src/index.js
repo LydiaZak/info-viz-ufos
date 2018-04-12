@@ -38,6 +38,9 @@ var colorScheme = [
     "#BFBFBF",
     "#BFBFBF",
     "#BFBFBF",
+    "#BFBFBF",
+    "#BFBFBF",
+    "#BFBFBF",
     "#BFBFBF"
 ];
 
@@ -548,6 +551,7 @@ function updatePieChart(domElementToAppendTo, scheme, sightings){
 
     // init the counts to 0
     var shapesData = [
+        {label:"changing",	value: 0},
         {label:"chevron",	value: 0},
         {label:"cigar",		value: 0},
         {label:"cross",		value: 0},
@@ -559,6 +563,8 @@ function updatePieChart(domElementToAppendTo, scheme, sightings){
         {label:"oval",	    value: 0},
         {label:"pyramid",	value: 0},
         {label:"rectangle",	value: 0},
+        {label:"round",	    value: 0},
+        {label:"square",	value: 0},
         {label:"sphere",	value: 0},
         {label:"triangle",	value: 0},
         {label:"other",		value: 0},
@@ -932,15 +938,15 @@ function barChart(data) {
         .attr("width", x.bandwidth())
         .attr("height", function(d) { return height - y(d.value); })
         //.attr("fill", function(d) { return colours(d.state); }) TODO
-        .attr("class", "bar"); // TODO
-        // .on("mousemove", function(d) {
-        //     tooltip
-        //         .style("left", d3.event.pageX - 50 + "px")
-        //         .style("top", d3.event.pageY - 70 + "px")
-        //         .style("display", "inline-block")
-        //         .html((d.state) + "<br>" + (d.value));
-        // })
-        // .on("mouseout", function(d){ tooltip.style("display", "none");});
+        .attr("class", "bar")
+        .on("mousemove", function(d) {
+            tooltip
+                .style("left", d3.event.pageX - 50 + "px")
+                .style("top", d3.event.pageY - 70 + "px")
+                .style("display", "inline-block")
+                .html((d.value));
+        })
+        .on("mouseout", function(d){ tooltip.style("display", "none");});
 }
 
 
