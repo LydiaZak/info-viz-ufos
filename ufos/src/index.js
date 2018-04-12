@@ -344,7 +344,10 @@ function addSightingsByYear() {
                 .duration(250)
                 .style("opacity", 1);
 
-            mapTooltip.html(d.city + ", " + d.state + "</br>" + "<strong>Shape:</strong> " + d.shape + "</br>" + "<strong>Description: </strong>" + d.comments)
+            var upperCity = d.city.charAt(0).toUpperCase() + d.city.substr(1);
+            mapTooltip.html(upperCity + ", " + d.state.toUpperCase() + "</br>" +
+                "<strong>Shape: </strong>" + d.shape + "</br>" +
+                "<strong>Description: </strong>" + d.comments)
                 .style("left", (d3.event.pageX + 15) + "px")
                 .style("top", (d3.event.pageY - 28) + "px");
 
