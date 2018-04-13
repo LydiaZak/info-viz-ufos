@@ -5,6 +5,7 @@ var path = 0;
 var svg = 0;
 var initialData = {};
 var sightingsByYearCountData = [];
+var intSightingsByYearCountData = {};
 var components = [];
 var sightings = d3.select(null);
 var zoom = true;
@@ -100,7 +101,7 @@ function processData(error,results,topo) {
 
     initialData = results;
 
-    var intSightingsByYearCountData = aggregationsByYear(initialData);
+    intSightingsByYearCountData = aggregationsByYear(initialData);
     //aggregationsByYear(initialData);
     area_chart(initialData);
     barChart(initialData);
@@ -110,24 +111,21 @@ function processData(error,results,topo) {
         scatterplot(onBrush)
     ]
 
-    // TODO fix
+    // TODO - need to change for brushing to work?
     function update() {
         components.forEach(function (component) {
             component(intSightingsByYearCountData)
         })
     }
 
+    // TODO
     function onBrush(x0, x1, y0, y1) {
-        var clear = x0 === x1 || y0 === y1
-        sightingsByYearCountData.forEach(function (d) { // data
-            // d.filtered = clear ? false
-            //      : d.avgDurationSecs < x0 || d.avgDurationSecs > x1 || d.sightingCountsByState < y0 || d.sightingCountsByState > y1
+        var clear = x0 === x1 || y0 === y1;
 
-            // TODO
+        sightingsByYearCountData.forEach(function (d) {
             var flatAggregations = [];
-            var yearAggrs = d[0].values;
-            for (var i = 0; i < yearAggrs.length; i++){
-                var obj = yearAggrs[i];
+            for (var i = 0; i < d.values.length; i++){
+                var obj = d.values[i];
                 var name = obj.key;
 
                 flatAggregations.push({
@@ -137,9 +135,11 @@ function processData(error,results,topo) {
                 });
             }
 
-            flatAggregations.filtered = clear ? false
-                : flatAggregations.avgDurationSecs < x0 || flatAggregations.avgDurationSecs > x1 ||
-                flatAggregations.sightingCountsByState < y0 || flatAggregations.sightingCountsByState > y1
+            flatAggregations.forEach(function (d) {
+                d.filtered = clear ? false
+                    : d.avgDurationSecs < x0 || d.avgDurationSecs > x1 ||
+                    d.sightingCountsByState < y0 || d.sightingCountsByState > y1
+            })
         })
         update()
     }
@@ -294,13 +294,13 @@ function choropleth(topo) { //topo
     // TODO fix for choropleth / zoom
     return function update(data) {
         svg.selectAll('path')
-            // .data(data, function (d) {
-            //     return d.state || d.properties.name
-            // })
+            .data(data, function (d) {
+                return d.state || d.properties.name
+            })
             .style('fill', function (d) {
-                //return d.filtered ? '#ddd' : color(d.sightingCountsByState)
                 return '#000';
-
+                // return d.filtered ? '#ddd' : color(d.sightingCountsByState)
+                //
                 // var currData = aggregationsByYear(initialData);
                 // currData.forEach(function(state) {
                 //     if(state.state = d.properties.name) {
@@ -450,7 +450,7 @@ function scatterplot(onBrush) {
     var yAxis = d3.axisLeft()
         .scale(y)
 
-    // TODO
+    // TODO - for scatterplot to map brush
    // var brush = d3.brush()
    //     .extent([[0, 0], [swidth, sheight]])
    //      .on('start brush', function () {
@@ -1031,13 +1031,14 @@ function barChart(data) {
 d3.select("#slider").on("input", function() {
     addSightingsByYear();
 
-    var currData = aggregationsByYear(initialData);
-
+    // TODO
     // reset the map
-    svg.selectAll("path").style('fill', "black");
-    components.forEach(function (component) {
-        component(currData)
-    })
+    //svg.selectAll("path").style('fill', "black");
+
+    // var currData = aggregationsByYear(initialData);
+    // components.forEach(function (component) {
+    //     component(intSightingsByYearCountData)
+    // })
 });
 
 d3.select(self.frameElement).style("height", "675px");
