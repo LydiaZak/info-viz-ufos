@@ -10,6 +10,12 @@
     margin-bottom: 1em;
 }
 
+.chart-info {
+    font-size: 9.5px;
+    text-transform: uppercase;
+    text-align: center;
+}
+
 .section-content {
     margin-bottom: 1em;
     margin-top: 4em;
