@@ -200,7 +200,6 @@ function aggregationsByYear(data) {
     // flatten the rolled up values from d3
     var flatAggregations = [];
     var yearAggrs = sightingsByYearCountData[0].values;
-    //var yearAggrs = tempAggr[0].values;
     for (var i = 0; i < yearAggrs.length; i++){
         var obj = yearAggrs[i];
         var name = obj.key;
@@ -356,7 +355,8 @@ function addSightingsByYear() {
             var upperCity = d.city.charAt(0).toUpperCase() + d.city.substr(1);
             mapTooltip.html(upperCity + ", " + d.state.toUpperCase() + "</br>" +
                 "<strong>Shape: </strong>" + d.shape + "</br>" +
-                "<strong>Description: </strong>" + d.comments)
+                "<strong>Description: </strong>" + d.comments + "</br>" +
+                "<strong>Duration (sec): </strong>" + d.durationsec)
                 .style("left", (d3.event.pageX + 15) + "px")
                 .style("top", (d3.event.pageY - 28) + "px");
 
@@ -490,7 +490,7 @@ function scatterplot(onBrush) {
 
     return function update(data) {
         x.domain(d3.extent(data, function (d) { return d.avgDurationSecs })).nice()
-        y.domain(d3.extent(data, function (d) { return d.sightingCountsByState })).nice()
+        y.domain([0,650]).nice()
 
         gx.call(xAxis)
         gy.call(yAxis)
@@ -900,7 +900,6 @@ function barChart(data) {
         });
     }
 
-    console.log(countByState)
     var countByState = _.sortBy(countByState, 'state' );
 
     var margin = {top: 20, right: 20, bottom: 30, left: 50},
