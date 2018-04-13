@@ -111,21 +111,24 @@ function processData(error,results,topo) {
         scatterplot(onBrush)
     ]
 
-    // TODO - need to change for brushing to work?
+    // TODO fix - need to change for brushing to work?
     function update() {
         components.forEach(function (component) {
             component(intSightingsByYearCountData)
         })
     }
 
-    // TODO
     function onBrush(x0, x1, y0, y1) {
-        var clear = x0 === x1 || y0 === y1;
+        var clear = x0 === x1 || y0 === y1
+        sightingsByYearCountData.forEach(function (d) { // data
+            // d.filtered = clear ? false
+            //      : d.avgDurationSecs < x0 || d.avgDurationSecs > x1 || d.sightingCountsByState < y0 || d.sightingCountsByState > y1
 
-        sightingsByYearCountData.forEach(function (d) {
+            // TODO
             var flatAggregations = [];
-            for (var i = 0; i < d.values.length; i++){
-                var obj = d.values[i];
+            var yearAggrs = d[0].values;
+            for (var i = 0; i < yearAggrs.length; i++){
+                var obj = yearAggrs[i];
                 var name = obj.key;
 
                 flatAggregations.push({
@@ -135,11 +138,9 @@ function processData(error,results,topo) {
                 });
             }
 
-            flatAggregations.forEach(function (d) {
-                d.filtered = clear ? false
-                    : d.avgDurationSecs < x0 || d.avgDurationSecs > x1 ||
-                    d.sightingCountsByState < y0 || d.sightingCountsByState > y1
-            })
+            flatAggregations.filtered = clear ? false
+                : flatAggregations.avgDurationSecs < x0 || flatAggregations.avgDurationSecs > x1 ||
+                flatAggregations.sightingCountsByState < y0 || flatAggregations.sightingCountsByState > y1
         })
         update()
     }
@@ -226,8 +227,8 @@ function choropleth(topo) { //topo
     var height = 450;
 
     projection = d3.geoAlbersUsa()
-        //.translate([width/2, height/2]) // translate to center of screen
-        //.scale([1000]); // scale things down so see entire US
+    //.translate([width/2, height/2]) // translate to center of screen
+    //.scale([1000]); // scale things down so see entire US
         .scale([width * 1.25])
         .translate([width / 2, height / 2])
 
@@ -243,7 +244,7 @@ function choropleth(topo) { //topo
 
     // draw the map
     var states = svg.selectAll('path')
-        //.data(features)
+    //.data(features)
         .data(topo.features)  // bind data to these non-existent objects
         .enter()
         .append('path') // prepare data to be appended to paths
@@ -267,12 +268,12 @@ function choropleth(topo) { //topo
 
         // TODO - issue with map zoom
         states.attr('d', path)
-            // .data(d, function () {
-            //     return d.state || d.properties.name
-            // })
-            // .style('fill', function () {
-            //     return d.filtered ? '#ddd' : color(d.sightingCountsByState)
-            // });
+        // .data(d, function () {
+        //     return d.state || d.properties.name
+        // })
+        // .style('fill', function () {
+        //     return d.filtered ? '#ddd' : color(d.sightingCountsByState)
+        // });
         sightings.attr("cx", function(d) {
             try {
                 return projection([d.longitude, d.latitude])[0];
@@ -294,13 +295,13 @@ function choropleth(topo) { //topo
     // TODO fix for choropleth / zoom
     return function update(data) {
         svg.selectAll('path')
-            .data(data, function (d) {
-                return d.state || d.properties.name
-            })
+        // .data(data, function (d) {
+        //     return d.state || d.properties.name
+        // })
             .style('fill', function (d) {
+                //return d.filtered ? '#ddd' : color(d.sightingCountsByState)
                 return '#000';
-                // return d.filtered ? '#ddd' : color(d.sightingCountsByState)
-                //
+
                 // var currData = aggregationsByYear(initialData);
                 // currData.forEach(function(state) {
                 //     if(state.state = d.properties.name) {
@@ -450,18 +451,18 @@ function scatterplot(onBrush) {
     var yAxis = d3.axisLeft()
         .scale(y)
 
-    // TODO - for scatterplot to map brush
-   // var brush = d3.brush()
-   //     .extent([[0, 0], [swidth, sheight]])
-   //      .on('start brush', function () {
-   //          var selection = d3.event.selection
-   //          var x0 = x.invert(selection[0][0])
-   //          var x1 = x.invert(selection[1][0])
-   //          var y0 = y.invert(selection[1][1])
-   //          var y1 = y.invert(selection[0][1])
-   //
-   //          onBrush(x0, x1, y0, y1)
-   //      })
+    // TODO
+    // var brush = d3.brush()
+    //     .extent([[0, 0], [swidth, sheight]])
+    //      .on('start brush', function () {
+    //          var selection = d3.event.selection
+    //          var x0 = x.invert(selection[0][0])
+    //          var x1 = x.invert(selection[1][0])
+    //          var y0 = y.invert(selection[1][1])
+    //          var y1 = y.invert(selection[0][1])
+    //
+    //          onBrush(x0, x1, y0, y1)
+    //      })
 
     var svg = d3.select('#scatterplot')
         .append('svg')
@@ -518,8 +519,8 @@ function scatterplot(onBrush) {
         svg.selectAll('circle')
             .style("fill", function (d) {
                 if (x(d.avgDurationSecs) >= x0 && x(d.avgDurationSecs) <= x0 + dx && y(d.sightingCountsByState) >= y0 && y(d.sightingCountsByState) <= y0 + dy) {
-                selectedStates.push(d.state);
-                return "white"; }
+                    selectedStates.push(d.state);
+                    return "white"; }
                 else {return "none"; }
             });
 
@@ -1035,10 +1036,10 @@ d3.select("#slider").on("input", function() {
     // reset the map
     //svg.selectAll("path").style('fill', "black");
 
-    // var currData = aggregationsByYear(initialData);
-    // components.forEach(function (component) {
-    //     component(intSightingsByYearCountData)
-    // })
+    var currData = aggregationsByYear(initialData);
+    components.forEach(function (component) {
+        component(currData)
+    })
 });
 
 d3.select(self.frameElement).style("height", "675px");
