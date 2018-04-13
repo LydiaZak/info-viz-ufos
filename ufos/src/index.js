@@ -378,8 +378,7 @@ function addSightingsByYear() {
         }
     );
 
-    sightings.on("mouseout",
-        function(d){
+    sightings.on("mouseout", function(d){
             mapTooltip.transition()
                 .duration(250)
                 .style("opacity", 0);
@@ -520,8 +519,10 @@ function scatterplot(onBrush) {
             .style("fill", function (d) {
                 if (x(d.avgDurationSecs) >= x0 && x(d.avgDurationSecs) <= x0 + dx && y(d.sightingCountsByState) >= y0 && y(d.sightingCountsByState) <= y0 + dy) {
                     selectedStates.push(d.state);
-                    return "white"; }
-                else {return "none"; }
+                    return "grey"; }
+                else {
+                    return "none";
+                }
             });
 
 
