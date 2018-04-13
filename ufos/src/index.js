@@ -102,9 +102,7 @@ function processData(error,results,topo) {
 
     var intSightingsByYearCountData = aggregationsByYear(initialData);
     //aggregationsByYear(initialData);
-
     area_chart(initialData);
-
     barChart(initialData);
 
     components = [
@@ -253,10 +251,12 @@ function choropleth(topo) { //topo
         .style('stroke', '#fff')
         .style('stroke-width', 1);
 
+    var padding = 20;
+
     states.on("click", function (d) {
 
         if(zoom) {
-            projection.fitExtent([[0,0], [width, height]], d);
+            projection.fitExtent([[padding,padding], [width-padding, height-padding]], d);
             path.projection(projection);
         } else {
             projection = d3.geoAlbersUsa()
@@ -267,12 +267,12 @@ function choropleth(topo) { //topo
 
         // TODO - issue with map zoom
         states.attr('d', path)
-            .data(d, function () {
-                return d.state || d.properties.name
-            })
-            .style('fill', function () {
-                return d.filtered ? '#ddd' : color(d.sightingCountsByState)
-            });
+            // .data(d, function () {
+            //     return d.state || d.properties.name
+            // })
+            // .style('fill', function () {
+            //     return d.filtered ? '#ddd' : color(d.sightingCountsByState)
+            // });
         sightings.attr("cx", function(d) {
             try {
                 return projection([d.longitude, d.latitude])[0];
@@ -291,13 +291,22 @@ function choropleth(topo) { //topo
     });
 
 
+    // TODO fix for choropleth / zoom
     return function update(data) {
         svg.selectAll('path')
-            .data(data, function (d) {
-                return d.state || d.properties.name
-            })
+            // .data(data, function (d) {
+            //     return d.state || d.properties.name
+            // })
             .style('fill', function (d) {
-                return d.filtered ? '#ddd' : color(d.sightingCountsByState)
+                //return d.filtered ? '#ddd' : color(d.sightingCountsByState)
+                return '#000';
+
+                // var currData = aggregationsByYear(initialData);
+                // currData.forEach(function(state) {
+                //     if(state.state = d.properties.name) {
+                //         return color(state.sightingCountsByState)
+                //     }
+                // })
             })
     }
 }
@@ -1012,7 +1021,7 @@ function barChart(data) {
                 .style("display", "inline-block")
                 .html((d.value));
         })
-        .on("mouseout", function(d){ tooltip.style("display", "none");});
+        .on("mouseout", function(d) { tooltip.style("display", "none");});
 }
 
 
