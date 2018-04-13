@@ -64,8 +64,9 @@
 
         <!-- BAR CHART -->
         <div class="container">
-            <div style="text-align:center;font-size:10px;"><strong>Reported Sightings per State (1910-2014)</strong></div>
+            <div style="text-align:center;font-size:11.5px;"><strong>Reported Sightings per State (1910-2014)</strong></div>
             <div id="barChart"></div>
+            <div><p class="chart-info">Hover over each line in the bar chart to discover more about the data.</p></div>
         </div>
 
         <!-- DATA -->
@@ -73,19 +74,26 @@
             <div class="container">
                 <h3>The Data</h3>
                 <p>
-                    The dataset that is used is from the National UFO Research Center. The dataset contains over
+                    The dataset is sourced from the National UFO Research Center. It contains over
                     80,000 reports of UFO sightings over the last century, and it was geolocated and time standardized
                     by Sigmond Axel. The data contains city (categorical), state (categorical), time (quantitative),
                     description, and duration (quantitative) of each sighting and gives detailed descriptions of each
-                    sighting by Peter Davenport, the Director of the National UFO Reporting Center in Washington State.
+                    sighting per the written sighting report. It is important to note for the data integrity that each
+                    sighting was screened, annotated and either approved or denied by sole employee and Director of the
+                    National UFO Reporting Center in Washington State, Peter Davenport.
                 </p>
             </div>
         </div>
 
         <!-- AREA CHART -->
         <div class="container">
-            <div style="text-align:center;font-size:10px;"><strong>Reported Sightings per Year</strong></div>
+            <div style="text-align:center;font-size:11.5px;"><strong>Reported Sightings per Year</strong></div>
             <div id="area_chart"></div>
+            <div>
+                <p class="chart-info">Use the arrows on the lower timeline to change the size of the highlight and
+                drill down into the data. Alternatively, scroll over the area graph to change the scale and range of
+                the timeline.</p>
+            </div>
         </div>
 
         <!-- CONTENT  -->
@@ -107,6 +115,11 @@
         <!-- MAP SLIDER -->
         <div id="full-width topContent">
             <div class="container">
+                <div>
+                    <p class="chart-info">Use the slider to change the year represented. Hover over points on the map to
+                        see details of each sighting reported. Watch for the changes in the scatter plot and pie chart
+                        as the year selected changes</p>
+                </div>
                 <span style="display:inline-block;padding-left: 50px;">
                     <input id="slider" type="range" min="1910" max="2014" step="1" value = "1910" style="width: 250px;"/>
                 </span>
@@ -121,6 +134,10 @@
             <!-- <div id="comments"></div>-->
             <div>
                 <div id="scatterplot"></div>
+                <div>
+                    <p class="chart-info">Select an area on the scatter plot using your mouse to show correlated states
+                        and pie chart data. Hover over sections of the pie chart to gain more information.</p>
+                </div>
                 <div id="chart">
                     <div><strong>UFO Shapes</strong></div>
                 </div>
@@ -156,14 +173,14 @@
             <div class="container">
                 <h3>Task Analysis</h3>
                 <p>
-                    Having decided to use the the National UFO Report Center's dataset for our project, we conducted a
-                    phone interview with its head, Peter Davenport to help us understand his website and dataset better.
+                    Upon deciding to use the the National UFO Report Center's dataset for our project, we conducted a
+                    phone interview with Davenport to help us better understand his website and dataset better.
                     The current iteration of the website was set up in 1995 and hosts approximately 145,000 alleged
                     sightings, with a noticeable uptick since the option to report a sighting via the internet became
-                    available. Currently there is a weekly UFO update on Coast to Coast AM radio and the website boasts
-                    many details with images of suspected sightings, however no visualizations of the dataset as a whole.
-                    After this interview we were able to decide which tasks were most important for us to satisfy
-                    in our visualization:
+                    available. Currently there is a weekly UFO update on Coast to Coast AM radio, and the website boasts
+                    many details with images of suspected sightings. However, there are no visualizations of the
+                    dataset as a whole, and none that explore trends using interactivity. The interview informed
+                    us when deciding which tasks were most important for us to satisfy in our visualization:
                 </p>
                 <div class="table-caption">Task Analysis</div>
                 <table class="table">
