@@ -441,7 +441,7 @@ function scatterplot(onBrush) {
     var yAxis = d3.axisLeft()
         .scale(y)
 
-    var brush = d3.brush()
+   /* var brush = d3.brush()
         .extent([[0, 0], [swidth, sheight]])
         .on('start brush', function () {
             var selection = d3.event.selection
@@ -451,7 +451,7 @@ function scatterplot(onBrush) {
             var y1 = y.invert(selection[0][1])
 
             onBrush(x0, x1, y0, y1)
-        })
+        })*/
 
     var svg = d3.select('#scatterplot')
         .append('svg')
@@ -459,6 +459,7 @@ function scatterplot(onBrush) {
         .attr('height', sheight + margin.top + margin.bottom)
         .append('g')
         .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
+
 
     var bg = svg.append('g')
     var gx = svg.append('g')
@@ -484,9 +485,71 @@ function scatterplot(onBrush) {
         .style('font-weight', 'bold')
         .text('# of sightings')
 
-    svg.append('g')
+//Lydia's code ********************************************************************************************
+
+    svg.append("g")
+        .call(d3.brush().extent([[0, 0], [swidth, sheight]]).on("brush", brushed).on("end", brushended));
+
+    function brushed() {
+        var s = d3.event.selection,
+            x0 = s[0][0],
+            y0 = s[0][1],
+            dx = s[1][0] - x0,
+            dy = s[1][1] - y0;
+
+        var selectedStates = [];
+
+        svg.selectAll('circle')
+            .style("fill", function (d) {
+                if (x(d.avgDurationSecs) >= x0 && x(d.avgDurationSecs) <= x0 + dx && y(d.sightingCountsByState) >= y0 && y(d.sightingCountsByState) <= y0 + dy) {
+                selectedStates.push(d.state);
+                return "white"; }
+                else {return "none"; }
+            });
+
+
+        var selectedYear = getCurrentYear();
+
+        var sightingsByYear = initialData.filter(
+            function(d) {
+                if(d.country == "us" && d.year == selectedYear) {
+                    for (var i=0; i< selectedStates.length ; i++)
+                    {if (selectedStates[i]== d.state) return true;}
+                }
+            }
+        );
+
+        updatePieChart("#chart", colorScheme, sightingsByYear);
+    }
+
+    function brushended() {
+        if (!d3.event.selection) {
+            svg.selectAll('circle')
+                .style("fill", "none");
+
+            var selectedYear = getCurrentYear();
+
+            var sightingsByYear = initialData.filter(
+                function(d) {
+                    if(d.country == "us" && d.year == selectedYear ) {
+                        return true
+                    }
+                }
+            );
+
+
+            updatePieChart("#chart", colorScheme, sightingsByYear);
+
+        }
+    }
+
+
+//***********************************************************************************************
+
+    /*svg.append('g')
         .attr('class', 'brush')
         .call(brush)
+*/
 
     return function update(data) {
         x.domain(d3.extent(data, function (d) { return d.avgDurationSecs })).nice()
