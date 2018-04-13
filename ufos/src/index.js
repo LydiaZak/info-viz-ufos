@@ -441,17 +441,18 @@ function scatterplot(onBrush) {
     var yAxis = d3.axisLeft()
         .scale(y)
 
-   /* var brush = d3.brush()
-        .extent([[0, 0], [swidth, sheight]])
-        .on('start brush', function () {
-            var selection = d3.event.selection
-            var x0 = x.invert(selection[0][0])
-            var x1 = x.invert(selection[1][0])
-            var y0 = y.invert(selection[1][1])
-            var y1 = y.invert(selection[0][1])
-
-            onBrush(x0, x1, y0, y1)
-        })*/
+    // TODO
+   // var brush = d3.brush()
+   //     .extent([[0, 0], [swidth, sheight]])
+   //      .on('start brush', function () {
+   //          var selection = d3.event.selection
+   //          var x0 = x.invert(selection[0][0])
+   //          var x1 = x.invert(selection[1][0])
+   //          var y0 = y.invert(selection[1][1])
+   //          var y1 = y.invert(selection[0][1])
+   //
+   //          onBrush(x0, x1, y0, y1)
+   //      })
 
     var svg = d3.select('#scatterplot')
         .append('svg')
@@ -459,7 +460,6 @@ function scatterplot(onBrush) {
         .attr('height', sheight + margin.top + margin.bottom)
         .append('g')
         .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
-
 
     var bg = svg.append('g')
     var gx = svg.append('g')
@@ -485,10 +485,17 @@ function scatterplot(onBrush) {
         .style('font-weight', 'bold')
         .text('# of sightings')
 
-//Lydia's code ********************************************************************************************
+    // TODO
+    // code for brushing on scatter plot to pie chart
+    // svg.append('g')
+    //     .attr('class', 'brush')
+    //     .call(brush)
 
     svg.append("g")
-        .call(d3.brush().extent([[0, 0], [swidth, sheight]]).on("brush", brushed).on("end", brushended));
+        .call(d3.brush()
+            .extent([[0, 0], [swidth, sheight]])
+            .on("brush", brushed)
+            .on("end", brushended));
 
     function brushed() {
         var s = d3.event.selection,
@@ -513,8 +520,11 @@ function scatterplot(onBrush) {
         var sightingsByYear = initialData.filter(
             function(d) {
                 if(d.country == "us" && d.year == selectedYear) {
-                    for (var i=0; i< selectedStates.length ; i++)
-                    {if (selectedStates[i]== d.state) return true;}
+                    for (var i=0; i< selectedStates.length ; i++) {
+                        if (selectedStates[i]== d.state) {
+                            return true;
+                        }
+                    }
                 }
             }
         );
@@ -528,7 +538,6 @@ function scatterplot(onBrush) {
                 .style("fill", "none");
 
             var selectedYear = getCurrentYear();
-
             var sightingsByYear = initialData.filter(
                 function(d) {
                     if(d.country == "us" && d.year == selectedYear ) {
@@ -537,19 +546,9 @@ function scatterplot(onBrush) {
                 }
             );
 
-
             updatePieChart("#chart", colorScheme, sightingsByYear);
-
         }
     }
-
-
-//***********************************************************************************************
-
-    /*svg.append('g')
-        .attr('class', 'brush')
-        .call(brush)
-*/
 
     return function update(data) {
         x.domain(d3.extent(data, function (d) { return d.avgDurationSecs })).nice()
