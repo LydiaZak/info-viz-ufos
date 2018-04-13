@@ -1,0 +1,80 @@
+\documentclass{neu_handout}
+\usepackage{url}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{marvosym}
+\usepackage{graphicx}
+\usepackage[pdftex]{graphicx}
+\usepackage{subfigure}
+\graphicspath{ {images/} }
+\everymath{\displaystyle}
+
+% Professor/Course information
+\title{User Testing - Visualizing UFO Sightings}
+\author{Abby, Emily, Lydia and Peter (The Conspiracists)}
+\date{April 2018}
+\course{CS 7295}{Information Visualization}
+
+\begin{document}
+
+\section*{1 Notes}
+
+Trends:\
+\begin{itemize}
+  \item Skip past first two visualizations of overall data view
+  \item Maybe have stroke instead of fill for map
+  \item Hover over dots and reads tooltips
+\end{itemize}
+
+Points of confusion:\
+\begin{itemize}
+  \item Didn't know to zoom immediately (needed to tell user to click)
+   \item Didn't know scatter plot had brushing
+  \item Tooltip with details was well liked
+  \item Units to bar chart and area chart
+  \item Didn't understand donut chart
+\end{itemize}
+
+What works well:\
+\begin{itemize}
+  \item The Gif
+  \item Year slider is intuitive
+  \item The Gif
+\end{itemize}
+
+Other comments:\
+\begin{itemize}
+  \item Color scheme is dark
+\end{itemize}
+
+\section*{2 To-do List}
+
+\begin{table}[h]
+\caption{To-do Lists Post User Testing} % title name of the table
+\centering % centering table
+\begin{tabular}{c c c} % creating 3 columns
+\hline\hline % inserting double-line
+ Task & Description \\ [0.5ex]
+\hline % inserts single-line
+
+encoding &
+change sighting dot without fill \\[1ex] %space
+
+encoding &
+finalize color scheme \\[1ex] %space
+
+feature & 
+choropleth map update \\[1ex] %space
+
+interactive principles &
+brushing between scatter plot and map \\
+
+other fixes &
+add explanatory text on how to use interactive visuals \\
+
+\hline 
+\end{tabular}
+\label{tab:PPer}
+\end{table}
+
+\end{document}

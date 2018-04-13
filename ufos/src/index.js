@@ -1,7 +1,5 @@
 
 // globals
-var width = 0;
-var height = 0;
 var projection = 0;
 var path = 0;
 var svg = 0;
@@ -13,8 +11,8 @@ var zoom = true;
 
 // color for choropleth map and scatter plot
 var color = d3.scaleThreshold()
-    .domain([0.24, 0.28, 0.32])
-    .range(['#fbb4b9', '#f768a1', '#c51b8a', '#7a0177']);
+    .domain([50, 150, 250])
+    .range(['#8c6bb1', '#88419d', '#810f7c', '#4d004b']);
 
 var mapTooltip = d3.select("body").append("div")
     .attr("class", "tooltipMap")
@@ -25,6 +23,9 @@ var comments = d3.select("#comments").append("div")
 
 //make the pie chart all grey
 var colorScheme = [
+    "#BFBFBF",
+    "#BFBFBF",
+    "#BFBFBF",
     "#BFBFBF",
     "#BFBFBF",
     "#BFBFBF",
@@ -61,10 +62,14 @@ function loadData() {
     d3.queue()   // queue function loads all external data files asynchronously
         .defer(d3.csv, "./data/scrubbed.csv", function (d) {
             if (d.state !== "" && d.country !== "") {
+
+                var state = abbrState(d.state, 'name');
+
                 return {
                     year: d.year,
                     city: d.city,
-                    state: d.state,
+                    stateAbbr: d.state.toUpperCase(),
+                    state: state,
                     shape: d.shape,
                     latitude: +d.latitude,
                     longitude: +d.longitude,
@@ -77,8 +82,7 @@ function loadData() {
                 }
             }
         })  // and associated data in csv file
-        .defer(d3.json, './us-states.json') // TODO
-        .defer(d3.json, "./us.json")  // our geometries
+        .defer(d3.json, './us-states.json') // our geometries
         .await(processData);   // once all files are loaded, call the processData function passing
                                // the loaded objects as arguments
 }
@@ -89,16 +93,19 @@ function loadData() {
  * @param topo
  * @param data
  */
-function processData(error,results,features,topo) {
+function processData(error,results,topo) {
     if (error) {
         throw error
     }
 
     initialData = results;
-    var intSightingsByYearCountData = aggregationsByYear(initialData);
 
-    // barChart(); TODO
+    var intSightingsByYearCountData = aggregationsByYear(initialData);
+    //aggregationsByYear(initialData);
+
     area_chart(initialData);
+
+    barChart(initialData);
 
     components = [
         choropleth(topo), // draw map
@@ -115,8 +122,26 @@ function processData(error,results,features,topo) {
     function onBrush(x0, x1, y0, y1) {
         var clear = x0 === x1 || y0 === y1
         sightingsByYearCountData.forEach(function (d) { // data
-            d.filtered = clear ? false
-                : d.avgDurationSecs < x0 || d.avgDurationSecs > x1 || d.sightingCountsByState < y0 || d.sightingCountsByState > y1
+            // d.filtered = clear ? false
+            //      : d.avgDurationSecs < x0 || d.avgDurationSecs > x1 || d.sightingCountsByState < y0 || d.sightingCountsByState > y1
+
+            // TODO
+            var flatAggregations = [];
+            var yearAggrs = d[0].values;
+            for (var i = 0; i < yearAggrs.length; i++){
+                var obj = yearAggrs[i];
+                var name = obj.key;
+
+                flatAggregations.push({
+                    state: name,
+                    sightingCountsByState: obj.value.sightingCountsByState,
+                    avgDurationSecs: obj.value.avgDurationSecs,
+                });
+            }
+
+            flatAggregations.filtered = clear ? false
+                : flatAggregations.avgDurationSecs < x0 || flatAggregations.avgDurationSecs > x1 ||
+                flatAggregations.sightingCountsByState < y0 || flatAggregations.sightingCountsByState > y1
         })
         update()
     }
@@ -175,10 +200,12 @@ function aggregationsByYear(data) {
     // flatten the rolled up values from d3
     var flatAggregations = [];
     var yearAggrs = sightingsByYearCountData[0].values;
+    //var yearAggrs = tempAggr[0].values;
     for (var i = 0; i < yearAggrs.length; i++){
         var obj = yearAggrs[i];
         var name = obj.key;
 
+        //sightingsByYearCountData.push({
         flatAggregations.push({
             state: name,
             sightingCountsByState: obj.value.sightingCountsByState,
@@ -198,8 +225,8 @@ function aggregationsByYear(data) {
  * @returns {update}
  */
 function choropleth(topo) { //topo
-    width = 800;
-    height = 500;
+    var width = 750;
+    var height = 450;
 
     projection = d3.geoAlbersUsa()
         //.translate([width/2, height/2]) // translate to center of screen
@@ -220,7 +247,7 @@ function choropleth(topo) { //topo
     // draw the map
     var states = svg.selectAll('path')
         //.data(features)
-        .data(topojson.feature(topo, topo.objects.states).features)  // bind data to these non-existent objects
+        .data(topo.features)  // bind data to these non-existent objects
         .enter()
         .append('path') // prepare data to be appended to paths
         .attr('d', path) // create them using the svg path generator defined above
@@ -239,22 +266,27 @@ function choropleth(topo) { //topo
             path.projection(projection);
         }
 
-        states.attr('d', path);
+        // TODO - issue with map zoom
+        states.attr('d', path)
+            .data(d, function () {
+                return d.state || d.properties.name
+            })
+            .style('fill', function () {
+                return d.filtered ? '#ddd' : color(d.sightingCountsByState)
+            });
         sightings.attr("cx", function(d) {
             try {
                 return projection([d.longitude, d.latitude])[0];
             } catch (e) {
                 // do nothing for now
             }
-        })
-            .attr("cy", function(d){
-
-                try {
-                    return projection([d.longitude, d.latitude])[1];
-                } catch (e) {
-                    // do nothing for now
-                }
-            });
+        }).attr("cy", function(d){
+            try {
+                return projection([d.longitude, d.latitude])[1];
+            } catch (e) {
+                // do nothing for now
+            }
+        });
 
         zoom = !zoom;
     });
@@ -263,9 +295,7 @@ function choropleth(topo) { //topo
     return function update(data) {
         svg.selectAll('path')
             .data(data, function (d) {
-                if(d.year == getCurrentYear() && d.country == "us" ) {
-                    return d.state
-                }
+                return d.state || d.properties.name
             })
             .style('fill', function (d) {
                 return d.filtered ? '#ddd' : color(d.sightingCountsByState)
@@ -301,8 +331,7 @@ function addSightingsByYear() {
             try {
                 return projection([d.longitude, d.latitude])[0];
             } catch (e) {
-                // TODO do nothing for now
-                // console.log(e);
+                // do nothing for now
             }
         })
         .attr("cy", function(d){
@@ -310,11 +339,11 @@ function addSightingsByYear() {
             try {
                 return projection([d.longitude, d.latitude])[1];
             } catch (e) {
-                // TODO do nothing for now
-                // console.log(e);
+                // do nothing for now
             }
         })
         .attr("r", 2)
+        .attr("fill", 2)
         .attr("class", "sightings");
 
     // hover over / on demand details
@@ -324,7 +353,10 @@ function addSightingsByYear() {
                 .duration(250)
                 .style("opacity", 1);
 
-            mapTooltip.html(d.city + ", " + d.state + "</br>" + "<strong>Shape:</strong> " + d.shape + "</br>" + "<strong>Description: </strong>" + d.comments)
+            var upperCity = d.city.charAt(0).toUpperCase() + d.city.substr(1);
+            mapTooltip.html(upperCity + ", " + d.state.toUpperCase() + "</br>" +
+                "<strong>Shape: </strong>" + d.shape + "</br>" +
+                "<strong>Description: </strong>" + d.comments)
                 .style("left", (d3.event.pageX + 15) + "px")
                 .style("top", (d3.event.pageY - 28) + "px");
 
@@ -364,6 +396,8 @@ function addSightingsByYear() {
 function updateHeaders(year, data){
     //update year text
     d3.select(".year").text("Year: " + year);
+
+    d3.select("#yearText").text(year);
 
     //get number of sightings in that year
     var countByYear = d3.nest()
@@ -429,7 +463,7 @@ function scatterplot(onBrush) {
     var bg = svg.append('g')
     var gx = svg.append('g')
         .attr('class', 'x axis')
-        .attr('transform', 'translate(0,' + height + ')')
+        .attr('transform', 'translate(0,' + sheight + ')')
     var gy = svg.append('g')
         .attr('class', 'y axis')
 
@@ -448,7 +482,7 @@ function scatterplot(onBrush) {
         .style('text-anchor', 'end')
         .style('fill', '#000')
         .style('font-weight', 'bold')
-        .text('sightings count')
+        .text('# of sightings')
 
     svg.append('g')
         .attr('class', 'brush')
@@ -529,6 +563,7 @@ function updatePieChart(domElementToAppendTo, scheme, sightings){
 
     // init the counts to 0
     var shapesData = [
+        {label:"changing",	value: 0},
         {label:"chevron",	value: 0},
         {label:"cigar",		value: 0},
         {label:"cross",		value: 0},
@@ -540,6 +575,8 @@ function updatePieChart(domElementToAppendTo, scheme, sightings){
         {label:"oval",	    value: 0},
         {label:"pyramid",	value: 0},
         {label:"rectangle",	value: 0},
+        {label:"round",	    value: 0},
+        {label:"square",	value: 0},
         {label:"sphere",	value: 0},
         {label:"triangle",	value: 0},
         {label:"other",		value: 0},
@@ -558,7 +595,7 @@ function updatePieChart(domElementToAppendTo, scheme, sightings){
     }
 
     var margin = {top: 50, bottom: 50, left: 50, right: 50};
-    var width = 350 - margin.left - margin.right, height = width, radius = Math.min(width, height) / 2;
+    var width = 300 - margin.left - margin.right, height = width, radius = Math.min(width, height) / 2;
 
     shapesData.forEach(
         function(item){
@@ -576,7 +613,7 @@ function updatePieChart(domElementToAppendTo, scheme, sightings){
 
     var arc = d3.arc()
         .outerRadius(radius - 10)
-        .innerRadius(40);
+        .innerRadius(35);
 
     var pie = d3.pie()
         .sort(null)
@@ -624,7 +661,7 @@ function updatePieChart(domElementToAppendTo, scheme, sightings){
             ));
 
             var percent = Math.round(1000 * d.data.value / total) / 10;
-            tooltip.select('.label').html(d.data.label.toUpperCase()).style('color','black');
+            tooltip.select('.label').html(d.data.label.toUpperCase()).style('color','#bdbdbd');
             tooltip.select('.count').html(d.data.value);
             tooltip.select('.percent').html(percent + '%');
 
@@ -666,30 +703,13 @@ function updatePieChart(domElementToAppendTo, scheme, sightings){
 
 }
 
-
-/**
- * Upyear the map if slide is moved
- */
-d3.select("#slider").on("input", function() {
-    addSightingsByYear();
-
-    var currData = aggregationsByYear(initialData);
-    components.forEach(function (component) {
-        component(currData)
-    })
-});
-
-d3.select(self.frameElement).style("height", "675px");
-
-window.onload = init();  // magic starts here
-
-
 /*****************************************************************
  * Brushing area chart
- */
+ ************************************************************ */
 
 function area_chart(data) {
 
+    // aggregate counts
     var us_data = data.filter(
         function (d) {
             return (d.country == "us")
@@ -709,65 +729,61 @@ function area_chart(data) {
         )
         .entries(us_data);
 
-    console.log(countByYear);
+    var amargin = {top: 20, right: 20, bottom: 110, left: 50},
+        amargin2 = {top: 430, right: 20, bottom: 30, left: 40},
+        awidth = 960 - amargin.left - amargin.right,
+        aheight = 500 - amargin.top - amargin.bottom,
+        aheight2 = 500 - amargin2.top - amargin2.bottom;
 
-    var parseDate = d3.timeParse("%Y");
-
-    var margin = {top: 20, right: 20, bottom: 110, left: 50},
-        margin2 = {top: 430, right: 20, bottom: 30, left: 40},
-        width = 960 - margin.left - margin.right,
-        height = 500 - margin.top - margin.bottom,
-        height2 = 500 - margin2.top - margin2.bottom;
-
-    var x = d3.scaleLinear().range([0, width]),
-        x2 = d3.scaleLinear().range([0, width]),
-        y = d3.scaleLinear().range([height, 0]),
-        y2 = d3.scaleLinear().range([height2, 0]);
+    var x = d3.scaleLinear().range([0, awidth]),
+        x2 = d3.scaleLinear().range([0, awidth]),
+        y = d3.scaleLinear().range([aheight, 0]),
+        y2 = d3.scaleLinear().range([aheight2, 0]);
 
     var xAxis = d3.axisBottom(x).tickFormat(d3.format("d")),
         xAxis2 = d3.axisBottom(x2).tickFormat(d3.format("d")),
         yAxis = d3.axisLeft(y);
 
     var brush = d3.brushX()
-        .extent([[0, 0], [width, height2]])
+        .extent([[0, 0], [awidth, aheight2]])
         .on("brush", brushed);
 
 
     var svg = d3.select("#area_chart").append("svg")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom);
+        .attr("width", awidth + amargin.left + amargin.right)
+        .attr("height", aheight + amargin.top + amargin.bottom);
     var zoom = d3.zoom()
         .scaleExtent([1, Infinity])
-        .translateExtent([[0, 0], [width, height]])
-        .extent([[0, 0], [width, height]])
+        .translateExtent([[0, 0], [awidth, aheight]])
+        .extent([[0, 0], [awidth, aheight]])
         .on("zoom", zoomed);
 
     var area = d3.area()
         .curve(d3.curveMonotoneX)
         .x(function(d) { return x(d.key); })
-        .y0(height)
+        .y0(aheight)
         .y1(function(d) { return y(d.value); });
 
     var area2 = d3.area()
         .curve(d3.curveMonotoneX)
         .x(function(d) { return x2(d.key); })
-        .y0(height2)
+        .y0(aheight2)
         .y1(function(d) { return y2(d.value); });
 
 
     svg.append("defs").append("clipPath")
         .attr("id", "clip")
         .append("rect")
-        .attr("width", width)
-        .attr("height", height);
+        .attr("width", awidth)
+        .attr("height", aheight);
 
     var focus = svg.append("g")
         .attr("class", "focus")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        .attr("transform", "translate(" + amargin.left + "," + amargin.top + ")");
 
     var context = svg.append("g")
         .attr("class", "context")
-        .attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
+        .attr("transform", "translate(" + amargin2.left + "," + amargin2.top + ")");
 
     y.domain(d3.extent(countByYear, function (d) {
         return d.value;
@@ -785,7 +801,7 @@ function area_chart(data) {
 
     focus.append("g")
         .attr("class", "axis axis--x")
-        .attr("transform", "translate(0," + height + ")")
+        .attr("transform", "translate(0," + aheight + ")")
         .call(xAxis);
 
     axisofy = focus.append("g")
@@ -797,7 +813,7 @@ function area_chart(data) {
         .attr('x', 0)
         .attr('y', 10)
         .style('text-anchor', 'end')
-        .style('fill', '#000')
+        //.style('fill', '#000')
         .style('font-weight', 'bold')
         .text('sightings count');
 
@@ -808,7 +824,7 @@ function area_chart(data) {
 
     context.append("g")
         .attr("class", "axis axis--x")
-        .attr("transform", "translate(0," + height2 + ")")
+        .attr("transform", "translate(0," + aheight2 + ")")
         .call(xAxis2);
 
     context.append("g")
@@ -818,21 +834,23 @@ function area_chart(data) {
 
     svg.append("rect")
         .attr("class", "zoom")
-        .attr("width", width)
-        .attr("height", height)
+        .attr("width", awidth)
+        .attr("height", aheight)
         .attr("opacity", 0)
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+        .attr("transform", "translate(" + amargin.left + "," + amargin.top + ")")
         .call(zoom);
 
 
     function brushed() {
-        if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom") return; // ignore brush-by-zoom
+        if (d3.event.sourceEvent && d3.event.sourceEvent.type === "zoom") {
+            return; // ignore brush-by-zoom
+        }
         var s = d3.event.selection || x2.range();
         x.domain(s.map(x2.invert, x2));
         focus.select(".area").attr("d", area);
         focus.select(".axis--x").call(xAxis);
         svg.select(".zoom").call(zoom.transform, d3.zoomIdentity
-            .scale(width / (s[1] - s[0]))
+            .scale(awidth / (s[1] - s[0]))
             .translate(-s[0], 0));
     }
 
@@ -845,10 +863,113 @@ function area_chart(data) {
         context.select(".brush").call(brush.move, x.range().map(t.invertX, t));
     }
 
-    function type(d) {
-        d.value = +d.value;
-        d.key = parseDate(+d.key);
-        return d;
+}
+
+
+/*****************************************************************
+ * Bar chart
+ ************************************************************ */
+function barChart(data) {
+
+    var us_data = data.filter(
+        function (d) {
+            return (d.country == "us")
+        }
+    );
+
+    var keyValsCountByState = d3.nest()
+        .key(
+            function (d) {
+                return d.stateAbbr;
+            }
+        )
+        .rollup(
+            function (values) {
+                return values.length;
+            }
+        )
+        .entries(us_data);
+
+
+    var countByState = [];
+    for (var i = 0; i < keyValsCountByState.length; i++) {
+        var obj = keyValsCountByState[i];
+        countByState.push({
+            state: obj.key,
+            value: obj.value
+        });
     }
 
+    console.log(countByState)
+    var countByState = _.sortBy(countByState, 'state' );
+
+    var margin = {top: 20, right: 20, bottom: 30, left: 50},
+        width = 1000 - margin.left - margin.right,
+        height = 100 - margin.top - margin.bottom;
+
+    var tooltip = d3.select("body").append("div").attr("class", "barToolTip");
+
+    var x = d3.scaleBand().rangeRound([0, width]).padding(0.1),
+        y = d3.scaleLinear().rangeRound([height, 0]);
+
+    var svg = d3.select("#barChart").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom);
+
+    var g = svg.append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    x.domain(countByState.map(function(d) { return d.state; }));
+    y.domain([0, d3.max(countByState, function(d) { return d.value; })]);
+
+    g.append("g")
+        .attr("class", "axis axis--x")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x));
+
+    g.append("g")
+        .attr("class", "axis axis--y")
+        .call(d3.axisLeft(y).ticks(3).tickFormat(function(d) { return d; }).tickSizeInner([-width]))
+        .append("text")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 6)
+        .attr("dy", "0.71em")
+        .attr("text-anchor", "end");
+
+    g.selectAll(".bar")
+        .data(countByState)
+        .enter().append("rect")
+        .attr("x", function(d) { return x(d.state); })
+        .attr("y", function(d) { return y(d.value); })
+        .attr("width", x.bandwidth())
+        .attr("height", function(d) { return height - y(d.value); })
+        .attr("class", "bar")
+        .on("mousemove", function(d) {
+            tooltip
+                .style("left", d3.event.pageX - 50 + "px")
+                .style("top", d3.event.pageY - 70 + "px")
+                .style("display", "inline-block")
+                .html((d.value));
+        })
+        .on("mouseout", function(d){ tooltip.style("display", "none");});
 }
+
+
+/**
+ * Update the map if slider is moved
+ */
+d3.select("#slider").on("input", function() {
+    addSightingsByYear();
+
+    var currData = aggregationsByYear(initialData);
+
+    // reset the map
+    svg.selectAll("path").style('fill', "black");
+    components.forEach(function (component) {
+        component(currData)
+    })
+});
+
+d3.select(self.frameElement).style("height", "675px");
+
+window.onload = init();  // magic starts here
