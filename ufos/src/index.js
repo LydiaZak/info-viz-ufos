@@ -42,6 +42,8 @@ var colorScheme = [
     "#BFBFBF",
     "#BFBFBF",
     "#BFBFBF",
+    "#BFBFBF",
+    "#BFBFBF",
     "#BFBFBF"
 ];
 
@@ -356,14 +358,13 @@ function addSightingsByYear() {
         .attr("class", "sightings");
 
     // hover over / on demand details
-    sightings.on("mouseover",
-        function(d){
+    sightings.on("mouseover", function(d) {
             mapTooltip.transition()
                 .duration(250)
                 .style("opacity", 1);
 
             var upperCity = d.city.charAt(0).toUpperCase() + d.city.substr(1);
-            mapTooltip.html(upperCity + ", " + d.state.toUpperCase() + "</br>" +
+            mapTooltip.html(upperCity + ", " + d.state + "</br>" +
                 "<strong>Shape: </strong>" + d.shape + "</br>" +
                 "<strong>Description: </strong>" + d.comments + "</br>" +
                 "<strong>Duration (sec): </strong>" + d.durationsec)
@@ -639,18 +640,20 @@ function updatePieChart(domElementToAppendTo, scheme, sightings){
         {label:"changing",	value: 0},
         {label:"chevron",	value: 0},
         {label:"cigar",		value: 0},
+        {label:"circle",	value: 0},
+        {label:"cone",		value: 0},
         {label:"cross",		value: 0},
         {label:"cylinder",	value: 0},
         {label:"diamond",	value: 0},
         {label:"disk",		value: 0},
+        {label:"egg",		value: 0},
         {label:"fireball",	value: 0},
+        {label:"flask",		value: 0},
         {label:"formation",	value: 0},
         {label:"oval",	    value: 0},
-        {label:"pyramid",	value: 0},
         {label:"rectangle",	value: 0},
-        {label:"round",	    value: 0},
-        {label:"square",	value: 0},
         {label:"sphere",	value: 0},
+        {label:"teardrop",	value: 0},
         {label:"triangle",	value: 0},
         {label:"other",		value: 0},
         {label:"unknown",	value: 0},
