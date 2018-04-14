@@ -217,7 +217,7 @@ In this section we focus on the steps that we took to successfully create our pr
 %\end{itemize}
 
 \subsection{Task Analysis}
-The main purpose of this project is to serve as a way to explore the data hosted on the National UFO Report Center's website. The dataset hosted there is massive and hard to understand without performing analytics. The domain tasks our visualization supports are in Table 2.
+The main purpose of this project is to serve as a way to explore the data hosted on the National UFO Report Center's website. The dataset hosted there is massive and hard to understand without performing analytics. The domain tasks our visualization supports are in Table 2 and are further explained below.
 
 
 \begin{table}[h]
@@ -252,49 +252,96 @@ What year has the most sightings? & Find Extremum\\[1ex] %space
 \label{tab:PPer}
 \end{table}
 
+\textbf{Observe how UFO sightings occur throughout the years}: This task is supported by two visualizations on the webpage. Firstly there is a zoomable timeline (shown in figure \ref{timeline}) where you can select a range of years in the lower timeline and see the upper timeline update. This interactivity enables a user to present the overall trend of the number of sightings skyrocketing as reporting became easier and popular culture made more people familiar with the idea that there was a secret conspiracy to suppress news of such sightings.
 
-In general these tasks can be categorized into two abstract tasks.
-\begin{itemize}
-\item \textbf{(T1)} Overview task:
-\item \textbf{(T2)} Drill-Down task:
-\end{itemize}
+Additionally the map of the US allows a user to observe sightings occur over the years using the slider and further see their spatial distribution across the country, the durations of the sightings, and the shapes reported.
+
+\textbf{Observe all UFO sightings of a particular year}: The slider above the map enables this task. Just slide the dot to the year desired and then a user can hover his mouse over a sighting to see details. Aggregate details pertaining to that year also appear as before in the scatterplot and donut chart on the right of the map.
+
+\textbf{Curiosity Stimulation}: The webpage is designed in a way to entice a user to read background information and then hopefully engage with the interactivity in the visualizations. The overall layout of the website flows like an article with visualizations embedded to give the user perspective before engaging with the tools. There is purposefully a small bar chart showing the total number of visualizations by state to give the user a taste of the rest before he continues to scroll down.
+
+\textbf{Look for areas with high number of sightings and detect clustering}: The map allows the user to search and explore as well as click to zoom in closer on a particular area to examine areas of interest, particularly areas with high numbers of sightings. Since the map shows a point for every reported sightings by geographic area, people are excellent at then detecting clusters of sightings. 
+
+\textbf{Learn details fo sightings}: Every point on the map has a tooltip which displays details of a particular sighting when the cursor is held over the point.
+
+\textbf{Did sightings of specific durations have other details in common}: The brushable scatterplot allows a user to select points with a similar duration and see the donut chart update. This could make more apparent if there are certain shapes in common to sightings that have particular durations.
+
+\textbf{What states have the most sightings each year}: Finding these extrema is simple by using the year slider and the map. Also the initial bar chart at the top of the page shows the states by total number of sightings which is a similar metric.
+
+\textbf{What year has the most sightings}: To the right of the year slider displays the total number of sightings reported that year. The interactive timeline, however, likely is more useful for this task and allows the user to put a years total number of sightings in context with the years before and after it.
+
+%%This looks too small when included, think we can do without it
+%\begin{figure}
+%\centering
+%\caption{Interactive bar graph of the total number of sightings by state}
+%\includegraphics[width=3.4in]{sightings_count.png}
+%\label{sightings}
+%\end{figure}
+
+\begin{figure}
+\centering
+\caption{Interactive timeline of UFO sightings from 1910-2014}
+\includegraphics[width=3.4in]{timeline.png}
+\label{timeline}
+\end{figure}
+
+\begin{figure}
+\centering
+\caption{Interactive national map of sightings with year slider bar and brushable chart of durations and donut chart of shapes of sightings}
+\includegraphics[width=3.55in]{map.png}
+\label{map}
+\end{figure}
+
+%In general these tasks can be categorized into two abstract tasks.
+%\begin{itemize}
+%\item \textbf{(T1)} Overview task:
+%\item \textbf{(T2)} Drill-Down task:
+%\end{itemize}
+
+
 
 \section{Design}
-For the abstract tasks, we chose the following visualization idioms (Table 3).
+%For the abstract tasks, we chose the following visualization idioms (Table 3).
 
 
-\begin{table}[h]
-\caption{Visualizing the Abstract Tasks} % title name of the table
-\centering % centering table
-\begin{tabular}{c c c} % creating 3 columns
-\hline\hline % inserting double-line
- Abstract Task & Visualization Idiom\\ [0.5ex]
-\hline % inserts single-line
+%\begin{table}[h]
+%\caption{Visualizing the Abstract Tasks} % title name of the table
+%\centering % centering table
+%\begin{tabular}{c c c} % creating 3 columns
+%\hline\hline % inserting double-line
+% Abstract Task & Visualization Idiom\\ [0.5ex]
+%\hline % inserts single-line
+%
+%Overview & Map\\[1ex] %space
+%
+%Drill-Down & Map and Line Chart\\[1ex] %space
+%
+%\hline 
+%\end{tabular}
+%\label{tab:PPer}
+%\end{table}
 
-Overview & Map\\[1ex] %space
+%\textbf{Visual Encoding and Interaction Choices:}
+%
+%\begin{itemize}
+%
+%\item Points on map for representation of geographic data
+%\item Sequential color scale for frequency of sightings on choropleth map
+%\item Retrieve details of sighting on tooltip on hover
+%\item Clicking on state to change the drilled-down view (hovering only affects tooltip)
+%\item Line chart for frequency of sightings of state over time (position as a channel for quantitative value)
+%\item Brush to choose sightings of an area for which the user wants to know information about when they occurred
+%
+%\end{itemize}
 
-Drill-Down & Map and Line Chart\\[1ex] %space
 
-\hline 
-\end{tabular}
-\label{tab:PPer}
-\end{table}
+Our final visualization shows the data in many different ways, all including interactivity to different degrees, which allows the user to decide which path through the story they want to take. When they first load the page, however, they are greeted by a clean layout, banner, and a cheesy UFO GIF. This serves to make the page seem inviting and encourage the user to read the motivation and explore the tools we designed. Our first visualization is also visible near the top, which shows the number of reporting sightings over the history of our dataset; this is the highest level of looking at the data that we encoded. The user can hover the mouse over a bar and see a tooltip display the number of sightings in that state in total from 1910-2014.
 
-\textbf{Visual Encoding and Interaction Choices:}
+After reading what is immediately visible, any user will notice that there is more material cut off at the bottom of the screen. This is important because it makes the fact that they can simply scroll continuously down the page to keep exploring - they don't have to click through any new pages. This will likely lead them to discover our next interactive feature by accident. The next visualization (Figure \ref{timeline}) shows the reporting sightings per year and allows the user to zoom in and brush the data that they are interested in seeing; there are two ways to brush down the data; on the time series and on the chart itself. If a user is casually scrolling down the page, they will likely inadvertently discover that scrolling the mouse while the cursor is hovering over the time series chart will cause it to zoom in. This is a good thing because then they will start to realize that all the visualizations have an interactive feature and will not miss them by moving too quickly.
 
-\begin{itemize}
+Our final visualization (Figure \ref{map}) appears shortly after a little more text, and it shows the geo-location of each individual sighting during the selected year. The user selects the year using the slider above the map, which populates using points in the exact geo-location. The choropleth map shows the number of sightings, which links in color scheme to the graph to the right. In this graph, the points indicate states, and the axis reflect the number of sightings versus average duration. The map also has an on-click feature, which allows the user to drill down to a state level for more discernibility with the data points and ease of access in reading and using the tooltip. The donut plot shows the proportion of shapes sighted, either by year on a national level, using the brushed data from the scatter plot, or the state data, depending on how the user chooses to interact. 
 
-\item Points on map for representation of geographic data
-\item Sequential color scale for frequency of sightings on choropleth map
-\item Retrieve details of sighting on tooltip on hover
-\item Clicking on state to change the drilled-down view (hovering only affects tooltip)
-\item Line chart for frequency of sightings of state over time (position as a channel for quantitative value)
-\item Brush to choose sightings of an area for which the user wants to know information about when they occurred
-
-\end{itemize}
-
-\textbf{Implementation:}
-
+This visualization was built using HTML, CSS, JavaScript, and several open-source projects including D3 v4, d3-queue. Moment JS, topojson, Underscore JS, Bootstrap, and nodejs.
 
 \section{Discussion}
 \subsection{Reflection}
