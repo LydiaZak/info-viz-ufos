@@ -1,0 +1,264 @@
+/* **********************************
+    HEADER
+ ************************************/
+.header .header-inner {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    color: #333;
+    background-color: #557076;
+    border-bottom: 1px solid #e5e5e5;
+    margin-bottom: 1em;
+}
+
+.chart-info {
+    font-size: 9.5px;
+    text-transform: uppercase;
+    text-align: center;
+}
+
+.section-content {
+    margin-bottom: 1em;
+    margin-top: 4em;
+}
+
+h1 {
+    color: white !important;
+    font-size: 36px !important;
+    padding-top: 20px;
+}
+
+.header .container .title h2 {
+    font-size: 18px;
+    margin-top: .1em;
+    margin-bottom: 2.5em;
+    color: lightgrey;
+}
+
+.container {
+    margin-right: auto;
+    margin-left: auto;
+    padding-left: 15px;
+    padding-right: 15px;
+    width: 750px;
+}
+
+.svg-container {
+    display: inline-block;
+    position: relative;
+    width: 100%;
+    padding-bottom: 100%;
+    vertical-align: middle;
+    overflow: hidden;
+}
+
+@font-face {
+    font-family: sans-serif;
+    font-style: normal;
+    font-weight: normal;
+}
+
+body {
+    font-family: sans-serif;
+    font-weight:normal;
+    margin: 0;
+    padding: 0;
+    color: #333;
+    height:100%;
+}
+
+.full-width {
+    width: 100%;
+    margin-bottom: 5em;
+    min-width: 768px;
+}
+
+#title {
+    text-align: center;
+}
+
+#topContent {
+    font-family:sans-serif;
+    font-weight:normal;
+    margin-left: 20px;
+}
+
+/* **********************************
+    MAP
+ ************************************/
+.feature {
+    fill: none;
+    stroke: grey;
+    stroke-width: 1px;
+    stroke-linejoin: round;
+}
+.mesh {
+    fill: none;
+    stroke: lightgrey;
+    stroke-width: 2px;
+    stroke-linejoin: round;
+}
+
+#map, #scatterplot {
+    margin: 0px 0px 0px 0px;
+    padding: 0px;
+    float: left;
+}
+
+span.year, span.count {
+    font-family:sans-serif;
+    font-weight:normal;
+    font-size: 12px;
+    width: 100px;
+    display: inline-block;
+    margin-left: 20px;
+
+}
+
+.states {
+    fill: #BFBFBF;
+    stroke: #ffffff;
+    stroke-width: 2px;
+    stroke-linejoin: round;
+}
+
+/* **********************************
+    MAP DOTS / SIGHTINGS
+ ************************************/
+.sightings{
+    fill: gainsboro; /*#9fee98;*/
+    stroke: gainsboro;
+    stroke-width: 2px;
+}
+
+.sightings:hover{
+    fill: darkslategrey; /*#FF00FF;*/
+    stroke: darkslategrey;
+}
+
+.tooltipMap {
+    font-family:sans-serif;
+    font-weight:normal;
+    position: absolute;
+    padding: 12px;
+    box-shadow: 0 0 5px #999999;
+    background-color: darkslategray;
+    color:white;
+    font-size:11px;
+    border-radius: 8px;
+    text-align: left;
+    display: inline;
+    max-width: 200px;
+}
+
+#slider {
+    text-align: right;
+    margin-top: -30px;
+}
+
+/* **********************************
+    PIE CHART
+ ************************************/
+.tooltipChart{
+    font-family:sans-serif;
+    font-weight:normal;
+    background: darkslategray;
+    box-shadow: 0 0 5px #999999;
+    color: white;
+    font-size: 11px;
+    border-radius: 8px;
+    left: 130px;
+    padding: 10px;
+    position: absolute;
+    text-align: center;
+    top: 95px;
+    width: 80px;
+    z-index: 10;
+    display: block;
+    opacity: 0;
+}
+
+.arc path {
+    stroke: #fff;
+    stroke-width: 2px;
+}
+
+.arc path:hover{
+    fill: #4c4c67;
+    stroke: #4c4c67;
+}
+
+
+#chart {
+    width: 200px;
+    height: 250px;
+    float: left;
+}
+
+/* **********************************
+    AREA CHART
+ ************************************/
+.background {
+    fill: none;
+    pointer-events: all;
+}
+
+path { stroke: #6e9598; stroke-width: 1px; }
+path:hover { stroke-width: 3px; }
+
+.area {
+    fill: #6e9598;
+    clip-path: url(#clip);
+}
+
+.zoom {
+    cursor: move;
+    fill: none;
+    pointer-events: all;
+}
+
+/* **********************************
+    BAR CHART
+ ************************************/
+.barToolTip {
+    font-family:sans-serif;
+    position: absolute;
+    display: none;
+    min-width: 80px;
+    box-shadow: 0 0 5px #999999;
+    background-color: darkslategray;
+    color:white;
+    padding: 14px;
+    font-size:11px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.bar {
+    fill: #4c4c67;
+}
+
+.bar:hover {
+    fill: #6e9598;
+}
+
+.axis path,
+.axis line {
+    display: none;
+}
+
+#barChart, #area_chart {
+    text-align: center;
+}
+
+/* **********************************
+    TABLE
+ ************************************/
+.table .bottom-border {
+    border-bottom: 2px solid #ddd!important;
+}
+
+.table-caption {
+    margin: .5em 0;
+    font-size: .8em;
+    text-align: center;
+}
