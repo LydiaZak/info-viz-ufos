@@ -207,6 +207,7 @@ function processData(error,results,topo) {
      * Update the map if slider is moved
      */
     d3.select("#slider").on("input", function() {
+        $( "#selectedStates" ).empty();
         addSightingsByYear();
         update();
     });
@@ -638,8 +639,50 @@ function scatterplot(onBrush) {
                 }
             );
 
+            $( "#selectedStates" ).empty();
             updatePieChart("#chart", colorScheme, sightingsByYear);
+        } else {
+            var s = d3.event.selection,
+                x0 = s[0][0],
+                y0 = s[0][1],
+                dx = s[1][0] - x0,
+                dy = s[1][1] - y0;
+
+            var selectedStates = [];
+
+            svg.selectAll('circle')
+                .style("fill", function (d) {
+                    if (x(d.avgDurationSecs) >= x0 && x(d.avgDurationSecs) <= x0 + dx && y(d.sightingCountsByState) >= y0 && y(d.sightingCountsByState) <= y0 + dy) {
+                        if($.inArray(d.state, selectedStates)) {
+                            selectedStates.push(d.state);
+                        }
+                        return "grey";
+                    } else {
+                        return "none";
+                    }
+                });
+
+            var selectedYear = getCurrentYear();
+            var sightingsByYear = initialData.filter(
+                function(d) {
+                    if(d.country == "us" && d.year == selectedYear) {
+                        for (var i=0; i < selectedStates.length ; i++) {
+                            if (selectedStates[i]== d.state) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            );
+
+            // TODO HERE
+            var unique = [...new Set(sightingsByYear.map(item => item.stateAbbr))];
+            unique.forEach(function(nameAbbr) {
+                $("#selectedStates").append( " " + nameAbbr ) ;
+            })
+
         }
+
     }
 
     // TODO update with scatterplot circle fill
