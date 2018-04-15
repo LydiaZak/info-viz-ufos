@@ -44,62 +44,61 @@ var colorScheme = [
     "#BFBFBF",
     "#BFBFBF",
     "#BFBFBF",
-    "#BFBFBF"
-];
+    "#BFBFBF"];
 
-var allStates = [
-    ['Arizona'],
-    ['Alabama'],
-    ['Alaska'],
-    ['Arizona'],
-    ['Arkansas'],
-    ['California'],
-    ['Colorado'],
-    ['Connecticut'],
-    ['Delaware'],
-    ['Florida'],
-    ['Georgia'],
-    ['Hawaii'],
-    ['Idaho'],
-    ['Illinois'],
-    ['Indiana'],
-    ['Iowa'],
-    ['Kansas'],
-    ['Kentucky'],
-    ['Kentucky'],
-    ['Louisiana'],
-    ['Maine'],
-    ['Maryland'],
-    ['Massachusetts'],
-    ['Michigan'],
-    ['Minnesota'],
-    ['Mississippi'],
-    ['Missouri'],
-    ['Montana'],
-    ['Nebraska'],
-    ['Nevada'],
-    ['New Hampshire'],
-    ['New Jersey'],
-    ['New Mexico'],
-    ['New York'],
-    ['North Carolina'],
-    ['North Dakota'],
-    ['Ohio'],
-    ['Oklahoma'],
-    ['Oregon'],
-    ['Pennsylvania'],
-    ['Rhode Island'],
-    ['South Carolina'],
-    ['South Dakota'],
-    ['Tennessee'],
-    ['Texas'],
-    ['Utah'],
-    ['Vermont'],
-    ['Virginia'],
-    ['Washington'],
-    ['West Virginia'],
-    ['Wisconsin'],
-    ['Wyoming'],
+var allStates =
+    ['Arizona',
+    'Alabama',
+    'Alaska',
+    'Arizona',
+    'Arkansas',
+    'California',
+    'Colorado',
+    'Connecticut',
+    'Delaware',
+    'Florida',
+    'Georgia',
+    'Hawaii',
+    'Idaho',
+    'Illinois',
+    'Indiana',
+    'Iowa',
+    'Kansas',
+    'Kentucky',
+    'Kentucky',
+    'Louisiana',
+    'Maine',
+    'Maryland',
+    'Massachusetts',
+    'Michigan',
+    'Minnesota',
+    'Mississippi',
+    'Missouri',
+    'Montana',
+    'Nebraska',
+    'Nevada',
+    'New Hampshire',
+    'New Jersey',
+    'New Mexico',
+    'New York',
+    'North Carolina',
+    'North Dakota',
+    'Ohio',
+    'Oklahoma',
+    'Oregon',
+    'Pennsylvania',
+    'Rhode Island',
+    'South Carolina',
+    'South Dakota',
+    'Tennessee',
+    'Texas',
+    'Utah',
+    'Vermont',
+    'Virginia',
+    'Washington',
+    'West Virginia',
+    'Wisconsin',
+    'Wyoming'
 ];
 
 
@@ -137,6 +136,7 @@ var allStates = [
                     durationhours: d.durationhours,
                     comments: d.comments,
                     dateposted: d.dateposted
+                    // filtered: false
                 }
             }
         })  // and associated data in csv file
@@ -158,7 +158,6 @@ function processData(error,results,topo) {
 
     initialData = results;
 
-    intSightingsByYearCountData = aggregationsByYear(initialData);
     //aggregationsByYear(initialData);
     area_chart(initialData);
     barChart(initialData);
@@ -168,18 +167,17 @@ function processData(error,results,topo) {
         scatterplot(onBrush)
     ]
 
-    // TODO fix - need to change for brushing to work?
     function update() {
+        intSightingsByYearCountData = aggregationsByYear(initialData);
         components.forEach(function (component) {
             component(intSightingsByYearCountData)
         })
     }
 
+    // TODO
     function onBrush(x0, x1, y0, y1) {
-        var clear = x0 === x1 || y0 === y1
+        var clear = x0 === x1 || y0 === y1;
         sightingsByYearCountData.forEach(function (d) {
-
-            // TODO
             var flatAggregations = [];
             var yearAggrs = d.values;
             for (var i = 0; i < yearAggrs.length; i++){
@@ -189,7 +187,8 @@ function processData(error,results,topo) {
                 flatAggregations.push({
                     state: name,
                     sightingCountsByState: obj.value.sightingCountsByState,
-                    avgDurationSecs: obj.value.avgDurationSecs,
+                    avgDurationSecs: obj.value.avgDurationSecs
+                    // filtered: obj.value.filtered
                 });
             }
 
@@ -200,8 +199,17 @@ function processData(error,results,topo) {
             });
 
         })
+
         update()
     }
+
+    /**
+     * Update the map if slider is moved
+     */
+    d3.select("#slider").on("input", function() {
+        addSightingsByYear();
+        update();
+    });
 
     update()
     addSightingsByYear();
@@ -271,16 +279,16 @@ function aggregationsByYear(data) {
 
     // flatten the rolled up values from d3
     var flatAggregations = [];
-    var yearAggrs = sightingsByYearCountData[0].values;
+    var yearAggrs = sightingsByYearCountData[0].values //
     for (var i = 0; i < yearAggrs.length; i++){
         var obj = yearAggrs[i];
         var name = obj.key;
 
-        //sightingsByYearCountData.push({
         flatAggregations.push({
             state: name,
             sightingCountsByState: obj.value.sightingCountsByState,
-            avgDurationSecs: obj.value.avgDurationSecs,
+            avgDurationSecs: obj.value.avgDurationSecs
+            // filtered: false
         });
     }
 
@@ -525,7 +533,7 @@ function scatterplot(onBrush) {
     var yAxis = d3.axisLeft()
         .scale(y)
 
-    // TODO
+    // TODO - uncomment for brushing btwn scatter and map
     // var brush = d3.brush()
     //     .extent([[0, 0], [swidth, sheight]])
     //      .on('start brush', function () {
@@ -569,8 +577,8 @@ function scatterplot(onBrush) {
         .style('font-weight', 'bold')
         .text('# of sightings')
 
-    // TODO
-    // code for brushing on scatter plot to pie chart
+    // TODO - uncomment for brushing btwn scatter and map
+    //code for brushing on scatter plot to pie chart
     // svg.append('g')
     //     .attr('class', 'brush')
     //     .call(brush)
@@ -600,9 +608,7 @@ function scatterplot(onBrush) {
                 }
             });
 
-
         var selectedYear = getCurrentYear();
-
         var sightingsByYear = initialData.filter(
             function(d) {
                 if(d.country == "us" && d.year == selectedYear) {
@@ -636,9 +642,14 @@ function scatterplot(onBrush) {
         }
     }
 
+    // TODO update with scatterplot circle fill
     return function update(data) {
-        x.domain(d3.extent(data, function (d) { return d.avgDurationSecs })).nice()
-        y.domain([0,650]).nice()
+        x.domain(d3.extent(data, function (d) {
+            return d.avgDurationSecs
+        })).nice()
+        y.domain(d3.extent(data, function (d) {
+            return d.sightingCountsByState
+        })).nice()
 
         gx.call(xAxis)
         gy.call(yAxis)
@@ -1102,17 +1113,3 @@ function barChart(data) {
         })
         .on("mouseout", function(d) { tooltip.style("display", "none");});
 }
-
-
-/**
- * Update the map if slider is moved
- */
-d3.select("#slider").on("input", function() {
-    addSightingsByYear();
-
-    // TODO
-    var currData = aggregationsByYear(initialData);
-    components.forEach(function (component) {
-        component(currData)
-    })
-});
