@@ -47,21 +47,76 @@ var colorScheme = [
     "#BFBFBF"
 ];
 
+var allStates = [
+    ['Arizona'],
+    ['Alabama'],
+    ['Alaska'],
+    ['Arizona'],
+    ['Arkansas'],
+    ['California'],
+    ['Colorado'],
+    ['Connecticut'],
+    ['Delaware'],
+    ['Florida'],
+    ['Georgia'],
+    ['Hawaii'],
+    ['Idaho'],
+    ['Illinois'],
+    ['Indiana'],
+    ['Iowa'],
+    ['Kansas'],
+    ['Kentucky'],
+    ['Kentucky'],
+    ['Louisiana'],
+    ['Maine'],
+    ['Maryland'],
+    ['Massachusetts'],
+    ['Michigan'],
+    ['Minnesota'],
+    ['Mississippi'],
+    ['Missouri'],
+    ['Montana'],
+    ['Nebraska'],
+    ['Nevada'],
+    ['New Hampshire'],
+    ['New Jersey'],
+    ['New Mexico'],
+    ['New York'],
+    ['North Carolina'],
+    ['North Dakota'],
+    ['Ohio'],
+    ['Oklahoma'],
+    ['Oregon'],
+    ['Pennsylvania'],
+    ['Rhode Island'],
+    ['South Carolina'],
+    ['South Dakota'],
+    ['Tennessee'],
+    ['Texas'],
+    ['Utah'],
+    ['Vermont'],
+    ['Virginia'],
+    ['Washington'],
+    ['West Virginia'],
+    ['Wisconsin'],
+    ['Wyoming'],
+];
+
 
 /**
  * Initialize.
  * Loads the data, processes it, then creates map and charts
  */
-function init() {
-    loadData();
-}
+// function init() {
+//     loadData();
+// }
 
 
 /**
  * Loads the data.
  * https://gist.githubusercontent.com/mbostock/4090846/raw/d534aba169207548a8a3d670c9c2cc719ff05c47/us.json
  */
-function loadData() {
+//function loadData() {
     d3.queue()   // queue function loads all external data files asynchronously
         .defer(d3.csv, "./data/scrubbed.csv", function (d) {
             if (d.state !== "" && d.country !== "") {
@@ -88,7 +143,7 @@ function loadData() {
         .defer(d3.json, './us-states.json') // our geometries
         .await(processData);   // once all files are loaded, call the processData function passing
                                // the loaded objects as arguments
-}
+//}
 
 /**
  * Process the data.
@@ -122,13 +177,11 @@ function processData(error,results,topo) {
 
     function onBrush(x0, x1, y0, y1) {
         var clear = x0 === x1 || y0 === y1
-        sightingsByYearCountData.forEach(function (d) { // data
-            // d.filtered = clear ? false
-            //      : d.avgDurationSecs < x0 || d.avgDurationSecs > x1 || d.sightingCountsByState < y0 || d.sightingCountsByState > y1
+        sightingsByYearCountData.forEach(function (d) {
 
             // TODO
             var flatAggregations = [];
-            var yearAggrs = d[0].values;
+            var yearAggrs = d.values;
             for (var i = 0; i < yearAggrs.length; i++){
                 var obj = yearAggrs[i];
                 var name = obj.key;
@@ -140,9 +193,12 @@ function processData(error,results,topo) {
                 });
             }
 
-            flatAggregations.filtered = clear ? false
-                : flatAggregations.avgDurationSecs < x0 || flatAggregations.avgDurationSecs > x1 ||
-                flatAggregations.sightingCountsByState < y0 || flatAggregations.sightingCountsByState > y1
+            flatAggregations.forEach(function(state) {
+                state.filtered = clear ? false
+                    : state.avgDurationSecs < x0 || state.avgDurationSecs > x1 ||
+                    state.sightingCountsByState < y0 || state.sightingCountsByState > y1
+            });
+
         })
         update()
     }
@@ -164,6 +220,7 @@ function aggregationsByYear(data) {
 
     // roll up the counts by year per state
     // key: year, values {key: state, value: count }
+    var listOfStates = [];
     var aggregations = d3.nest()
         .key(
             function(d){
@@ -172,6 +229,7 @@ function aggregationsByYear(data) {
         )
         .key(
             function(d){
+                listOfStates.push({name: d.state});
                 return d.state;
             }
         )
@@ -198,6 +256,19 @@ function aggregationsByYear(data) {
         }
     );
 
+    // add empty states & sightings set to 0
+    var statesToAdd = [];
+    allStates.forEach(function (stateName) {
+        if(findKey(listOfStates,stateName) !== 'undefined') {
+            statesToAdd.push(stateName);
+        }
+    });
+
+    statesToAdd.forEach(function(name){
+        var emptyState = {'key': name, 'value': { 'avgDurationSecs': 0, 'sightingCountsByState': 0}};
+        sightingsByYearCountData[0].values.push(emptyState);
+    });
+
     // flatten the rolled up values from d3
     var flatAggregations = [];
     var yearAggrs = sightingsByYearCountData[0].values;
@@ -214,6 +285,20 @@ function aggregationsByYear(data) {
     }
 
     return flatAggregations;
+
+    function findKey(obj, value){
+        var key = "";
+        _.find(obj, function(v, k) {
+            if (v === value) {
+                key = k;
+                return true;
+            } else {
+                return false;
+            }
+        });
+
+        return key;
+    }
 }
 
 /**************************************************************
@@ -269,47 +354,40 @@ function choropleth(topo) { //topo
         }
 
         // TODO - issue with map zoom
-        states.attr('d', path)
-        // .data(d, function () {
-        //     return d.state || d.properties.name
-        // })
-        // .style('fill', function () {
-        //     return d.filtered ? '#ddd' : color(d.sightingCountsByState)
+        // states.attr('d', path)
+        //     .data(d, function () {
+        //         return d.state || d.properties.name
+        //     })
+        //     .style('fill', function () {
+        //         //return d.filtered ? '#ddd' : color(d.sightingCountsByState)
+        //         return d.sightingCountsByState === 0 ? '#000' : color(d.sightingCountsByState)
+        //     });
+        // sightings.attr("cx", function(d) {
+        //     try {
+        //         return projection([d.longitude, d.latitude])[0];
+        //     } catch (e) {
+        //         // do nothing for now
+        //     }
+        // }).attr("cy", function(d){
+        //     try {
+        //         return projection([d.longitude, d.latitude])[1];
+        //     } catch (e) {
+        //         // do nothing for now
+        //     }
         // });
-        sightings.attr("cx", function(d) {
-            try {
-                return projection([d.longitude, d.latitude])[0];
-            } catch (e) {
-                // do nothing for now
-            }
-        }).attr("cy", function(d){
-            try {
-                return projection([d.longitude, d.latitude])[1];
-            } catch (e) {
-                // do nothing for now
-            }
-        });
-
-        zoom = !zoom;
+        // zoom = !zoom;
     });
 
 
     // TODO fix for choropleth / zoom
     return function update(data) {
         svg.selectAll('path')
-        // .data(data, function (d) {
-        //     return d.state || d.properties.name
-        // })
+            .data(data, function (d) {
+                return d.state || d.properties.name
+            })
             .style('fill', function (d) {
                 //return d.filtered ? '#ddd' : color(d.sightingCountsByState)
-                return '#000';
-
-                // var currData = aggregationsByYear(initialData);
-                // currData.forEach(function(state) {
-                //     if(state.state = d.properties.name) {
-                //         return color(state.sightingCountsByState)
-                //     }
-                // })
+                return d.sightingCountsByState === 0 ? '#000' : color(d.sightingCountsByState);
             })
     }
 }
@@ -390,12 +468,8 @@ function addSightingsByYear() {
         }
     );
 
-    //update the headers
     updateHeaders(selectedYear, sightingsByYear);
-
-    //update the pie chart
     updatePieChart("#chart", colorScheme, sightingsByYear);
-
 }
 
 /**
@@ -406,7 +480,6 @@ function addSightingsByYear() {
 function updateHeaders(year, data){
     //update year text
     d3.select(".year").text("Year: " + year);
-
     d3.select("#yearText").text(year);
 
     //get number of sightings in that year
@@ -657,7 +730,7 @@ function updatePieChart(domElementToAppendTo, scheme, sightings){
         {label:"triangle",	value: 0},
         {label:"other",		value: 0},
         {label:"unknown",	value: 0},
-        {label:"light",	    value: 0},
+        {label:"light",	    value: 0}
     ];
 
     //update values for shapesData
@@ -1037,15 +1110,8 @@ d3.select("#slider").on("input", function() {
     addSightingsByYear();
 
     // TODO
-    // reset the map
-    //svg.selectAll("path").style('fill', "black");
-
     var currData = aggregationsByYear(initialData);
     components.forEach(function (component) {
         component(currData)
     })
 });
-
-d3.select(self.frameElement).style("height", "675px");
-
-window.onload = init();  // magic starts here
