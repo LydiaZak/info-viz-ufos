@@ -47,21 +47,77 @@ var colorScheme = [
     "#BFBFBF"
 ];
 
+var allStates =
+    ['Arizona',
+        'Alabama',
+        'Alaska',
+        'Arizona',
+        'Arkansas',
+        'California',
+        'Colorado',
+        'Connecticut',
+        'Delaware',
+        'Florida',
+        'Georgia',
+        'Hawaii',
+        'Idaho',
+        'Illinois',
+        'Indiana',
+        'Iowa',
+        'Kansas',
+        'Kentucky',
+        'Kentucky',
+        'Louisiana',
+        'Maine',
+        'Maryland',
+        'Massachusetts',
+        'Michigan',
+        'Minnesota',
+        'Mississippi',
+        'Missouri',
+        'Montana',
+        'Nebraska',
+        'Nevada',
+        'New Hampshire',
+        'New Jersey',
+        'New Mexico',
+        'New York',
+        'North Carolina',
+        'North Dakota',
+        'Ohio',
+        'Oklahoma',
+        'Oregon',
+        'Pennsylvania',
+        'Rhode Island',
+        'South Carolina',
+        'South Dakota',
+        'Tennessee',
+        'Texas',
+        'Utah',
+        'Vermont',
+        'Virginia',
+        'Washington',
+        'West Virginia',
+        'Wisconsin',
+        'Wyoming'
+    ];
+
+
 
 /**
  * Initialize.
  * Loads the data, processes it, then creates map and charts
  */
-function init() {
-    loadData();
-}
+// function init() {
+//     loadData();
+// }
 
 
 /**
  * Loads the data.
  * https://gist.githubusercontent.com/mbostock/4090846/raw/d534aba169207548a8a3d670c9c2cc719ff05c47/us.json
  */
-function loadData() {
+//function loadData() {
     d3.queue()   // queue function loads all external data files asynchronously
         .defer(d3.csv, "./data/scrubbed.csv", function (d) {
             if (d.state !== "" && d.country !== "") {
@@ -88,7 +144,7 @@ function loadData() {
         .defer(d3.json, './us-states.json') // our geometries
         .await(processData);   // once all files are loaded, call the processData function passing
                                // the loaded objects as arguments
-}
+//}
 
 /**
  * Process the data.
@@ -102,9 +158,6 @@ function processData(error,results,topo) {
     }
 
     initialData = results;
-
-    intSightingsByYearCountData = aggregationsByYear(initialData);
-    //aggregationsByYear(initialData);
     area_chart(initialData);
     barChart(initialData);
 
@@ -115,6 +168,7 @@ function processData(error,results,topo) {
 
     // TODO fix - need to change for brushing to work?
     function update() {
+        intSightingsByYearCountData = aggregationsByYear(initialData);
         components.forEach(function (component) {
             component(intSightingsByYearCountData)
         })
@@ -147,6 +201,15 @@ function processData(error,results,topo) {
         update()
     }
 
+    /**
+     +     * Update the map if slider is moved
+     +     */
+    d3.select("#slider").on("input", function() {
+        $( "#selectedStates" ).empty();
+        addSightingsByYear();
+        update();
+    });
+
     update()
     addSightingsByYear();
 }
@@ -164,6 +227,7 @@ function aggregationsByYear(data) {
 
     // roll up the counts by year per state
     // key: year, values {key: state, value: count }
+    var listOfStates = [];
     var aggregations = d3.nest()
         .key(
             function(d){
@@ -172,6 +236,7 @@ function aggregationsByYear(data) {
         )
         .key(
             function(d){
+                listOfStates.push({name: d.state});
                 return d.state;
             }
         )
@@ -198,22 +263,49 @@ function aggregationsByYear(data) {
         }
     );
 
+    // add empty states & sightings set to 0
+    var statesToAdd = [];
+    allStates.forEach(function (stateName) {
+        if(findKey(listOfStates,stateName) !== 'undefined') {
+            statesToAdd.push(stateName);
+        }
+    });
+
+    statesToAdd.forEach(function(name){
+        var emptyState = {'key': name, 'value': { 'avgDurationSecs': 0, 'sightingCountsByState': 0}};
+        sightingsByYearCountData[0].values.push(emptyState);
+    });
+
     // flatten the rolled up values from d3
     var flatAggregations = [];
-    var yearAggrs = sightingsByYearCountData[0].values;
+    var yearAggrs = sightingsByYearCountData[0].values //
     for (var i = 0; i < yearAggrs.length; i++){
         var obj = yearAggrs[i];
         var name = obj.key;
 
-        //sightingsByYearCountData.push({
         flatAggregations.push({
             state: name,
             sightingCountsByState: obj.value.sightingCountsByState,
-            avgDurationSecs: obj.value.avgDurationSecs,
+            avgDurationSecs: obj.value.avgDurationSecs
+            // filtered: false
         });
     }
 
     return flatAggregations;
+
+    function findKey(obj, value){
+        var key = "";
+        _.find(obj, function(v, k) {
+            if (v === value) {
+                key = k;
+                return true;
+            } else {
+                return false;
+            }
+        });
+
+        return key;
+    }
 }
 
 /**************************************************************
@@ -558,7 +650,48 @@ function scatterplot(onBrush) {
                 }
             );
 
+            $( "#selectedStates" ).empty();
             updatePieChart("#chart", colorScheme, sightingsByYear);
+        } else {
+            var s = d3.event.selection,
+                x0 = s[0][0],
+                y0 = s[0][1],
+                dx = s[1][0] - x0,
+                dy = s[1][1] - y0;
+
+            var selectedStates = [];
+
+            svg.selectAll('circle')
+                .style("fill", function (d) {
+                    if (x(d.avgDurationSecs) >= x0 && x(d.avgDurationSecs) <= x0 + dx && y(d.sightingCountsByState) >= y0 && y(d.sightingCountsByState) <= y0 + dy) {
+                        if($.inArray(d.state, selectedStates)) {
+                            selectedStates.push(d.state);
+                        }
+                        return "grey";
+                    } else {
+                        return "none";
+                    }
+                });
+
+            var selectedYear = getCurrentYear();
+            var sightingsByYear = initialData.filter(
+                function(d) {
+                    if(d.country == "us" && d.year == selectedYear) {
+                        for (var i=0; i < selectedStates.length ; i++) {
+                            if (selectedStates[i]== d.state) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            );
+
+            // TODO HERE
+            var unique = [...new Set(sightingsByYear.map(item => item.stateAbbr))];
+            unique.forEach(function(nameAbbr) {
+                $("#selectedStates").append( " " + nameAbbr ) ;
+            })
+
         }
     }
 
@@ -1033,19 +1166,19 @@ function barChart(data) {
 /**
  * Update the map if slider is moved
  */
-d3.select("#slider").on("input", function() {
-    addSightingsByYear();
-
-    // TODO
-    // reset the map
-    //svg.selectAll("path").style('fill', "black");
-
-    var currData = aggregationsByYear(initialData);
-    components.forEach(function (component) {
-        component(currData)
-    })
-});
-
-d3.select(self.frameElement).style("height", "675px");
-
-window.onload = init();  // magic starts here
+// d3.select("#slider").on("input", function() {
+//     addSightingsByYear();
+//
+//     // TODO
+//     // reset the map
+//     //svg.selectAll("path").style('fill', "black");
+//
+//     var currData = aggregationsByYear(initialData);
+//     components.forEach(function (component) {
+//         component(currData)
+//     })
+// });
+//
+// d3.select(self.frameElement).style("height", "675px");
+//
+// window.onload = init();  // magic starts here
