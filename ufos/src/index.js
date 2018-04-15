@@ -13,7 +13,7 @@ var zoom = true;
 // color for choropleth map and scatter plot
 var color = d3.scaleThreshold()
     .domain([50, 150, 250])
-    .range(['#8c6bb1', '#88419d', '#810f7c', '#4d004b']);
+    .range(['#807dba', '#6a51a3', '#54278f', '#3f007d']);
 
 var mapTooltip = d3.select("body").append("div")
     .attr("class", "tooltipMap")
@@ -341,42 +341,43 @@ function choropleth(topo) { //topo
 
     var padding = 20;
 
-    states.on("click", function (d) {
-
-        if(zoom) {
-            projection.fitExtent([[padding,padding], [width-padding, height-padding]], d);
-            path.projection(projection);
-        } else {
-            projection = d3.geoAlbersUsa()
-                .scale([width * 1.25])
-                .translate([width / 2, height / 2])
-            path.projection(projection);
-        }
-
-        // TODO - issue with map zoom
-        // states.attr('d', path)
-        //     .data(d, function () {
-        //         return d.state || d.properties.name
-        //     })
-        //     .style('fill', function () {
-        //         //return d.filtered ? '#ddd' : color(d.sightingCountsByState)
-        //         return d.sightingCountsByState === 0 ? '#000' : color(d.sightingCountsByState)
-        //     });
-        // sightings.attr("cx", function(d) {
-        //     try {
-        //         return projection([d.longitude, d.latitude])[0];
-        //     } catch (e) {
-        //         // do nothing for now
-        //     }
-        // }).attr("cy", function(d){
-        //     try {
-        //         return projection([d.longitude, d.latitude])[1];
-        //     } catch (e) {
-        //         // do nothing for now
-        //     }
-        // });
-        // zoom = !zoom;
-    });
+    // TODO
+    // states.on("click", function (d) {
+    //
+    //     if(zoom) {
+    //         projection.fitExtent([[padding,padding], [width-padding, height-padding]], d);
+    //         path.projection(projection);
+    //     } else {
+    //         projection = d3.geoAlbersUsa()
+    //             .scale([width * 1.25])
+    //             .translate([width / 2, height / 2])
+    //         path.projection(projection);
+    //     }
+    //
+    //     // TODO - issue with map zoom
+    //     states.attr('d', path)
+    //         .data(d, function () {
+    //             return d.state || d.properties.name
+    //         })
+    //         .style('fill', function () {
+    //             //return d.filtered ? '#ddd' : color(d.sightingCountsByState)
+    //             return d.sightingCountsByState === 0 ? '#000' : color(d.sightingCountsByState)
+    //         });
+    //     sightings.attr("cx", function(d) {
+    //         try {
+    //             return projection([d.longitude, d.latitude])[0];
+    //         } catch (e) {
+    //             // do nothing for now
+    //         }
+    //     }).attr("cy", function(d){
+    //         try {
+    //             return projection([d.longitude, d.latitude])[1];
+    //         } catch (e) {
+    //             // do nothing for now
+    //         }
+    //     });
+    //     zoom = !zoom;
+    // });
 
 
     // TODO fix for choropleth / zoom
