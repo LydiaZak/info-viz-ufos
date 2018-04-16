@@ -9,11 +9,15 @@ var intSightingsByYearCountData = {};
 var components = [];
 var sightings = d3.select(null);
 var zoom = true;
+var legend_labels = ["< 50", "50+", "150+", "250+"];
+var colorDomain = [50, 150, 250];
+var ext_color_domain = [0, 50, 150, 250]
+var colorRange = ['#807dba', '#6a51a3', '#54278f', '#3f007d'];
 
 // color for choropleth map and scatter plot
 var color = d3.scaleThreshold()
-    .domain([50, 150, 250])
-    .range(['#8c6bb1', '#88419d', '#810f7c', '#4d004b']);
+    .domain(colorDomain)
+    .range(colorRange);
 
 var mapTooltip = d3.select("body").append("div")
     .attr("class", "tooltipMap")
@@ -326,8 +330,7 @@ function choropleth(topo) { //topo
         .scale([width * 1.25])
         .translate([width / 2, height / 2])
 
-    // convert GeoJSON to SVG paths.
-    // tell path generator to use albersUsa projection
+    // convert GeoJSON to SVG paths. Tell path generator to use albersUsa projection
     path = d3.geoPath().projection(projection)
 
     // create svg variable for map
@@ -335,6 +338,29 @@ function choropleth(topo) { //topo
         .append('svg')
         .attr('width', width)
         .attr('height', height)
+
+
+    // adding legend for our Choropleth
+    var legend = svg.selectAll("g.legend")
+        .data(ext_color_domain)
+        .enter().append("g")
+        .attr('transform', 'translate(650,0)')
+        .attr("class", "legend");
+
+    var ls_w = 18, ls_h = 18;
+
+    legend.append("rect")
+        .attr("x", 18)
+        .attr("y", function(d, i){ return height - (i*ls_h) - 2*ls_h;})
+        .attr("width", ls_w)
+        .attr("height", ls_h)
+        .style("fill", function(d, i) { return color(d); })
+        .style("opacity", 0.8);
+
+    legend.append("text")
+        .attr("x", 50)
+        .attr("y", function(d, i){ return height - (i*ls_h) - ls_h - 4;})
+        .text(function(d, i){ return legend_labels[i]; });
 
     // draw the map
     var states = svg.selectAll('path')
