@@ -344,6 +344,7 @@ function choropleth(topo) { //topo
     var legend = svg.selectAll("g.legend")
         .data(ext_color_domain)
         .enter().append("g")
+        .attr('transform', 'translate(650,0)')
         .attr("class", "legend");
 
     var ls_w = 18, ls_h = 18;
