@@ -270,27 +270,34 @@ Additionally, the map of the US allows a user to observe when sightings occur ov
 
 \textbf{What year has the most sightings}: To the right of the year slider displays the total number of sightings reported that year. The interactive time line, however, likely is more useful for this task and allows the user to put a years total number of sightings in context with the years before and after it. 
 
-%%This looks too small when included, think we can do without it
-\begin{figure*}
-\centering
-\caption{Interactive bar graph of the total number of sightings by state, with mouse hovering over California}
-\includegraphics[width=\textwidth]{sightings_count.png}
-\label{sightings}
-\end{figure*}
+%This looks too small when included, think we can do without it
+%\begin{figure*}
+%\centering
+%\caption{Interactive bar graph of the total number of sightings by state, with mouse hovering over California}
+%\includegraphics[width=\textwidth]{sightings_count.png}
+%\label{sightings}
+%\end{figure*}
+%
+%\begin{figure*}
+%\centering
+%\caption{Interactive national map of sightings with year slider bar and brushable chart of durations and donut chart of shapes of sightings. Mouse is hovering over a sighting in North Dakota and tooltip is displaying }
+%\includegraphics[width=\textwidth,height=8cm]{map.png}
+%\label{map}
+%\end{figure*}
 
-\begin{figure}
-\centering
-\caption{Interactive timeline of UFO sightings from 1910-2014}
-\includegraphics[width=3.4in]{timeline.png}
-\label{timeline}
-\end{figure}
+%\begin{figure}
+%\centering
+%\includegraphics[width=3.4in]{timeline.png}
+%\caption{Interactive timeline of UFO sightings from 1910-2014}
+%\label{timeline}
+%\end{figure}
 
-\begin{figure*}
-\centering
-\caption{Interactive national map of sightings with year slider bar and brushable chart of durations and donut chart of shapes of sightings. Mouse is hovering over a sighting in North Dakota and tooltip is displaying }
-\includegraphics[width=\textwidth,height=8cm]{map.png}
-\label{map}
-\end{figure*}
+
+
+
+
+
+
 
 %In general these tasks can be categorized into two abstract tasks.
 %\begin{itemize}
@@ -337,7 +344,26 @@ Additionally, the map of the US allows a user to observe when sightings occur ov
 
 Our final visualization shows the data in many different ways, all including interactivity to different degrees, which allows the user to decide which path through the story they want to take. When they first load the page, the user greeted by a clean layout, banner, and explanatory text. This serves to make the page seem inviting and encourage the user to read the motivation and explore the tools. Our first visualization is intentionally visible without scrolling, which shows the number of reporting sightings over the history of our data set; this is the highest level of data encoded. The user can hover the mouse over a bar and see a tool tip display the number of sightings in that state in total from 1910-2014.
 
+\begin{figure}[h]
+\centering
+\includegraphics[width=3.4in]{timeline.png}
+\caption{Interactive timeline of UFO sightings from 1910-2014}
+\label{timeline}
+\end{figure}
+
+
 After reading what is immediately visible, the user will notice that there is more material cut off at the bottom of the screen. This will lead the user to discover our next interactive feature. The next visualization (Figure \ref{timeline}) shows the reporting sightings per year and allows the user to zoom in and brush the data that they are interested in seeing; there are two ways to brush down the data; on the time series and on the chart itself. If a user is scrolling down the page, they will likely inadvertently discover that scrolling the mouse while the cursor is hovering over the time series chart will cause it to zoom in. This is intended to peak curiosity and allow the user to realize that all the visualizations have an interactive features.
+
+\begin{figure*}[h]
+\centering
+\includegraphics[width=\textwidth]{sightings_count.png}
+\caption{Interactive bar graph of the total number of sightings by state, with mouse hovering over California}
+\label{sightings}
+\includegraphics[width=\textwidth]{map.png}
+\caption{Interactive national map of sightings with year slider bar and brushable chart of durations and donut chart of shapes of sightings. Mouse is hovering over a sighting in North Dakota and tooltip is displaying }
+\label{map}
+\end{figure*}
+
 
 Our final visualization (Figure \ref{map}) appears shortly after a little more text, showing the geo-location of each individual sighting during the selected year. The user selects the year using the slider above the map, which populates using points in the exact geo-location for that specific year. The choropleth map shows the number of sightings, which links via color to the scatter plot to the right. In this graph, the points indicate states, and the axis reflect the number of sightings versus average duration. The map also has an on-click feature, which allows the user to drill down to a state level for more specific information with the data points and ease of access in using the tool tip. The donut plot shows the proportion of shapes sighted, either by year on a national level, using the brushed data from the scatter plot, or this information layered with the state data, depending on how the user chooses to interact. 
 
