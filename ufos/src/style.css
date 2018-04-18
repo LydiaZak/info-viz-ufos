@@ -262,3 +262,8 @@ path:hover { stroke-width: 3px; }
     font-size: .8em;
     text-align: center;
 }
+
+
+.legend {
+    font-size: 12px;
+}
