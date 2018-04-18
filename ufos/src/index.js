@@ -9,6 +9,9 @@ var intSightingsByYearCountData = {};
 var components = [];
 var sightings = d3.select(null);
 var zoom = true;
+var selectedYear = "";
+
+
 var legend_labels = ["< 50", "50+", "150+", "250+"];
 var colorDomain = [50, 150, 250];
 var ext_color_domain = [0, 50, 150, 250]
@@ -48,7 +51,64 @@ var colorScheme = [
     "#BFBFBF",
     "#BFBFBF",
     "#BFBFBF",
-    "#BFBFBF"
+    "#BFBFBF"];
+
+// This is for translating the abbreviations
+// to state names in order to have a key for our
+// geojson data / geometries
+var allStates =
+    ['Arizona',
+    'Alabama',
+    'Alaska',
+    'Arizona',
+    'Arkansas',
+    'California',
+    'Colorado',
+    'Connecticut',
+    'Delaware',
+    'Florida',
+    'Georgia',
+    'Hawaii',
+    'Idaho',
+    'Illinois',
+    'Indiana',
+    'Iowa',
+    'Kansas',
+    'Kentucky',
+    'Kentucky',
+    'Louisiana',
+    'Maine',
+    'Maryland',
+    'Massachusetts',
+    'Michigan',
+    'Minnesota',
+    'Mississippi',
+    'Missouri',
+    'Montana',
+    'Nebraska',
+    'Nevada',
+    'New Hampshire',
+    'New Jersey',
+    'New Mexico',
+    'New York',
+    'North Carolina',
+    'North Dakota',
+    'Ohio',
+    'Oklahoma',
+    'Oregon',
+    'Pennsylvania',
+    'Rhode Island',
+    'South Carolina',
+    'South Dakota',
+    'Tennessee',
+    'Texas',
+    'Utah',
+    'Vermont',
+    'Virginia',
+    'Washington',
+    'West Virginia',
+    'Wisconsin',
+    'Wyoming'
 ];
 
 var allStates =
@@ -142,6 +202,7 @@ var allStates =
                     durationhours: d.durationhours,
                     comments: d.comments,
                     dateposted: d.dateposted
+                    // filtered: false TODO
                 }
             }
         })  // and associated data in csv file
@@ -162,31 +223,29 @@ function processData(error,results,topo) {
     }
 
     initialData = results;
+    intSightingsByYearCountData = aggregationsByYear(initialData);
     area_chart(initialData);
     barChart(initialData);
+    var features = topo.features
 
     components = [
-        choropleth(topo), // draw map
+        choropleth(features), // draw map
         scatterplot(onBrush)
     ]
 
-    // TODO fix - need to change for brushing to work?
     function update() {
         intSightingsByYearCountData = aggregationsByYear(initialData);
         components.forEach(function (component) {
-            component(intSightingsByYearCountData)
+            component(features)
         })
     }
 
+    // TODO
     function onBrush(x0, x1, y0, y1) {
-        var clear = x0 === x1 || y0 === y1
-        sightingsByYearCountData.forEach(function (d) { // data
-            // d.filtered = clear ? false
-            //      : d.avgDurationSecs < x0 || d.avgDurationSecs > x1 || d.sightingCountsByState < y0 || d.sightingCountsByState > y1
-
-            // TODO
+        var clear = x0 === x1 || y0 === y1;
+        sightingsByYearCountData.forEach(function (d) {
             var flatAggregations = [];
-            var yearAggrs = d[0].values;
+            var yearAggrs = d.values;
             for (var i = 0; i < yearAggrs.length; i++){
                 var obj = yearAggrs[i];
                 var name = obj.key;
@@ -194,21 +253,28 @@ function processData(error,results,topo) {
                 flatAggregations.push({
                     state: name,
                     sightingCountsByState: obj.value.sightingCountsByState,
-                    avgDurationSecs: obj.value.avgDurationSecs,
+                    avgDurationSecs: obj.value.avgDurationSecs
+                    // filtered: obj.value.filtered
                 });
             }
 
-            flatAggregations.filtered = clear ? false
-                : flatAggregations.avgDurationSecs < x0 || flatAggregations.avgDurationSecs > x1 ||
-                flatAggregations.sightingCountsByState < y0 || flatAggregations.sightingCountsByState > y1
+            flatAggregations.forEach(function(state) {
+                state.filtered = clear ? false
+                    : state.avgDurationSecs < x0 || state.avgDurationSecs > x1 ||
+                    state.sightingCountsByState < y0 || state.sightingCountsByState > y1
+            });
+
         })
+
         update()
     }
 
     /**
-     +     * Update the map if slider is moved
-     +     */
+     * Update the map if slider is moved
+     */
     d3.select("#slider").on("input", function() {
+        //get the current year
+        selectedYear = getCurrentYear();
         $( "#selectedStates" ).empty();
         addSightingsByYear();
         update();
@@ -262,6 +328,7 @@ function aggregationsByYear(data) {
     sightingsByYearCountData = aggregations.filter(
         function(d) {
             if(d.key == getCurrentYear()) {
+                //console.log(d)
                 return d;
             }
         }
@@ -276,13 +343,17 @@ function aggregationsByYear(data) {
     });
 
     statesToAdd.forEach(function(name){
-        var emptyState = {'key': name, 'value': { 'avgDurationSecs': 0, 'sightingCountsByState': 0}};
+        var emptyState = {
+            'key': name,
+            'value': {
+                'avgDurationSecs': 0, 'sightingCountsByState': 0
+            }};
         sightingsByYearCountData[0].values.push(emptyState);
     });
 
     // flatten the rolled up values from d3
     var flatAggregations = [];
-    var yearAggrs = sightingsByYearCountData[0].values //
+    var yearAggrs = sightingsByYearCountData[0].values
     for (var i = 0; i < yearAggrs.length; i++){
         var obj = yearAggrs[i];
         var name = obj.key;
@@ -320,7 +391,7 @@ function aggregationsByYear(data) {
  * @param topo
  * @returns {update}
  */
-function choropleth(topo) { //topo
+function choropleth(features) { //topo
     var width = 750;
     var height = 450;
 
@@ -364,8 +435,7 @@ function choropleth(topo) { //topo
 
     // draw the map
     var states = svg.selectAll('path')
-    //.data(features)
-        .data(topo.features)  // bind data to these non-existent objects
+        .data(features)  // bind data to these non-existent objects
         .enter()
         .append('path') // prepare data to be appended to paths
         .attr('d', path) // create them using the svg path generator defined above
@@ -375,7 +445,7 @@ function choropleth(topo) { //topo
     var padding = 20;
 
     states.on("click", function (d) {
-
+        //console.log(d)
         if(zoom) {
             projection.fitExtent([[padding,padding], [width-padding, height-padding]], d);
             path.projection(projection);
@@ -386,14 +456,8 @@ function choropleth(topo) { //topo
             path.projection(projection);
         }
 
-        // TODO - issue with map zoom
         states.attr('d', path)
-        // .data(d, function () {
-        //     return d.state || d.properties.name
-        // })
-        // .style('fill', function () {
-        //     return d.filtered ? '#ddd' : color(d.sightingCountsByState)
-        // });
+
         sightings.attr("cx", function(d) {
             try {
                 return projection([d.longitude, d.latitude])[0];
@@ -407,27 +471,15 @@ function choropleth(topo) { //topo
                 // do nothing for now
             }
         });
-
         zoom = !zoom;
     });
 
-
-    // TODO fix for choropleth / zoom
     return function update(data) {
         svg.selectAll('path')
-        // .data(data, function (d) {
-        //     return d.state || d.properties.name
-        // })
             .style('fill', function (d) {
-                //return d.filtered ? '#ddd' : color(d.sightingCountsByState)
-                return '#000';
+                var sightingCountsByState = getPropertyOfAggrObject(d.properties.name, "sightingCountsByState")
 
-                // var currData = aggregationsByYear(initialData);
-                // currData.forEach(function(state) {
-                //     if(state.state = d.properties.name) {
-                //         return color(state.sightingCountsByState)
-                //     }
-                // })
+                return sightingCountsByState == 0 ? '#000' : color(sightingCountsByState);
             })
     }
 }
@@ -441,13 +493,13 @@ function addSightingsByYear() {
     d3.selectAll(".sightings").remove();
 
     //get the current year
-    var selectedYear = getCurrentYear();
+    selectedYear = getCurrentYear();
 
     //filter our data: get sightings by year
     var sightingsByYear = initialData.filter(
         function(d) {
-            if(d.country == "us") {
-                return d.year == selectedYear;
+            if(d.country === "us") {
+                return d.year === selectedYear;
             }
         }
     );
@@ -508,12 +560,8 @@ function addSightingsByYear() {
         }
     );
 
-    //update the headers
     updateHeaders(selectedYear, sightingsByYear);
-
-    //update the pie chart
     updatePieChart("#chart", colorScheme, sightingsByYear);
-
 }
 
 /**
@@ -524,7 +572,6 @@ function addSightingsByYear() {
 function updateHeaders(year, data){
     //update year text
     d3.select(".year").text("Year: " + year);
-
     d3.select("#yearText").text(year);
 
     //get number of sightings in that year
@@ -569,7 +616,7 @@ function scatterplot(onBrush) {
     var yAxis = d3.axisLeft()
         .scale(y)
 
-    // TODO
+    // TODO - uncomment for brushing btwn scatter and map
     // var brush = d3.brush()
     //     .extent([[0, 0], [swidth, sheight]])
     //      .on('start brush', function () {
@@ -613,8 +660,8 @@ function scatterplot(onBrush) {
         .style('font-weight', 'bold')
         .text('# of sightings')
 
-    // TODO
-    // code for brushing on scatter plot to pie chart
+    // TODO - uncomment for brushing btwn scatter and map
+    //code for brushing on scatter plot to pie chart
     // svg.append('g')
     //     .attr('class', 'brush')
     //     .call(brush)
@@ -636,17 +683,20 @@ function scatterplot(onBrush) {
 
         svg.selectAll('circle')
             .style("fill", function (d) {
-                if (x(d.avgDurationSecs) >= x0 && x(d.avgDurationSecs) <= x0 + dx && y(d.sightingCountsByState) >= y0 && y(d.sightingCountsByState) <= y0 + dy) {
-                    selectedStates.push(d.state);
+
+                var state = getPropertyOfAggrObject(d.properties.name, "state")
+                var sightingCountsByState = getPropertyOfAggrObject(d.properties.name, "sightingCountsByState")
+                var avgDurationSecs = getPropertyOfAggrObject(d.properties.name, "avgDurationSecs")
+
+                if (x(avgDurationSecs) >= x0 && x(avgDurationSecs) <= x0 + dx && y(sightingCountsByState) >= y0 && y(sightingCountsByState) <= y0 + dy) {
+                    selectedStates.push(state);
                     return "grey"; }
                 else {
                     return "none";
                 }
             });
 
-
-        var selectedYear = getCurrentYear();
-
+        selectedYear = getCurrentYear();
         var sightingsByYear = initialData.filter(
             function(d) {
                 if(d.country == "us" && d.year == selectedYear) {
@@ -667,10 +717,10 @@ function scatterplot(onBrush) {
             svg.selectAll('circle')
                 .style("fill", "none");
 
-            var selectedYear = getCurrentYear();
+            selectedYear = getCurrentYear();
             var sightingsByYear = initialData.filter(
                 function(d) {
-                    if(d.country == "us" && d.year == selectedYear ) {
+                    if(d.country === "us" && d.year === selectedYear ) {
                         return true
                     }
                 }
@@ -689,9 +739,13 @@ function scatterplot(onBrush) {
 
             svg.selectAll('circle')
                 .style("fill", function (d) {
-                    if (x(d.avgDurationSecs) >= x0 && x(d.avgDurationSecs) <= x0 + dx && y(d.sightingCountsByState) >= y0 && y(d.sightingCountsByState) <= y0 + dy) {
-                        if($.inArray(d.state, selectedStates)) {
-                            selectedStates.push(d.state);
+                    var avgDurationSecs = getPropertyOfAggrObject(d.properties.name, "avgDurationSecs")
+                    var sightingCountsByState = getPropertyOfAggrObject(d.properties.name, "sightingCountsByState")
+                    var state = getPropertyOfAggrObject(d.properties.name, "state")
+
+                    if (x(avgDurationSecs) >= x0 && x(avgDurationSecs) <= x0 + dx && y(sightingCountsByState) >= y0 && y(sightingCountsByState) <= y0 + dy) {
+                        if($.inArray(state, selectedStates)) {
+                            selectedStates.push(state);
                         }
                         return "grey";
                     } else {
@@ -699,12 +753,13 @@ function scatterplot(onBrush) {
                     }
                 });
 
-            var selectedYear = getCurrentYear();
+
+            selectedYear = getCurrentYear();
             var sightingsByYear = initialData.filter(
                 function(d) {
-                    if(d.country == "us" && d.year == selectedYear) {
+                    if(d.country === "us" && d.year === selectedYear) {
                         for (var i=0; i < selectedStates.length ; i++) {
-                            if (selectedStates[i]== d.state) {
+                            if (selectedStates[i]=== d.state) {
                                 return true;
                             }
                         }
@@ -712,18 +767,25 @@ function scatterplot(onBrush) {
                 }
             );
 
-            // TODO HERE
             var unique = [...new Set(sightingsByYear.map(item => item.stateAbbr))];
             unique.forEach(function(nameAbbr) {
                 $("#selectedStates").append( " " + nameAbbr ) ;
             })
 
         }
+
     }
 
+    // TODO update with scatterplot circle fill
     return function update(data) {
-        x.domain(d3.extent(data, function (d) { return d.avgDurationSecs })).nice()
-        y.domain([0,650]).nice()
+        x.domain(d3.extent(data, function (d) {
+            return getPropertyOfAggrObject(d.properties.name, "avgDurationSecs")
+            //return d.avgDurationSecs
+        })).nice()
+        y.domain(d3.extent(data, function (d) {
+            return getPropertyOfAggrObject(d.properties.name, "sightingCountsByState")
+            //return d.sightingCountsByState
+        })).nice()
 
         gx.call(xAxis)
         gy.call(yAxis)
@@ -735,22 +797,45 @@ function scatterplot(onBrush) {
             .attr('x', 0)
             .attr('width', swidth)
             .merge(bgRect)
-            .attr('y', function (d) { return y(d[1]) })
-            .attr('height', function (d) { return y(d[0]) - y(d[1]) })
-            .style('fill', function (d) { return color(d[0]) })
+            .attr('y', function (d) {
+                return y(d[1])
+            })
+            .attr('height', function (d) {
+                return y(d[0]) - y(d[1])
+            })
+            .style('fill', function (d) {
+                return color(d[0])
+            })
 
         var circle = svg.selectAll('circle')
-            .data(data, function (d) { return d.state })
+            .data(data, function (d) {
+                return getPropertyOfAggrObject(d.properties.name, "state")
+                //return d.state
+            })
         circle.exit().remove()
         circle.enter().append('circle')
             .attr('r', 4)
             .style('stroke', '#fff')
             .merge(circle)
-            .attr('cx', function (d) { return x(d.avgDurationSecs) })
-            .attr('cy', function (d) { return y(d.sightingCountsByState) })
-            .style('fill', function (d) { return color(d.sightingCountsByState) })
-            .style('opacity', function (d) { return d.filtered ? 0.5 : 1 })
-            .style('stroke-width', function (d) { return d.filtered ? 1 : 2 })
+            .attr('cx', function (d) {
+
+                return x(getPropertyOfAggrObject(d.properties.name, "avgDurationSecs"))
+            })
+            .attr('cy', function (d) {
+                return y(getPropertyOfAggrObject(d.properties.name, "sightingCountsByState"))
+            })
+            .style('fill', function (d) {
+                return color(getPropertyOfAggrObject(d.properties.name, "sightingCountsByState"))
+            })
+            //TODO
+            .style('opacity', function (d) {
+                return getPropertyOfAggrObject(d.properties.name, "filtered") ? 0.5 : 1
+                //return d.filtered ? 0.5 : 1
+            })
+            .style('stroke-width', function (d) {
+                return getPropertyOfAggrObject(d.properties.name, "filtered") ? 1 : 2
+                //return d.filtered ? 1 : 2
+            })
     }
 }
 
@@ -762,6 +847,18 @@ function getCurrentYear() {
     return document.getElementById("slider").value;
 }
 
+/**
+ * This function is needed in order to index the aggregated
+ * data so that we are separating the geojson from our data.
+ * @returns {desired property}
+ */
+function getPropertyOfAggrObject(stateName, propName) {
+    var result = intSightingsByYearCountData.filter(function(obj) {
+        return obj.state === stateName;
+    });
+    var prop = result.map(a => a[propName]);
+    return prop[0]
+}
 
 
 /**************************************************************
@@ -816,7 +913,7 @@ function updatePieChart(domElementToAppendTo, scheme, sightings){
         {label:"triangle",	value: 0},
         {label:"other",		value: 0},
         {label:"unknown",	value: 0},
-        {label:"light",	    value: 0},
+        {label:"light",	    value: 0}
     ];
 
     //update values for shapesData
@@ -1135,7 +1232,7 @@ function barChart(data) {
         });
     }
 
-    var countByState = _.sortBy(countByState, 'state' );
+    var countByState = _.sortBy(countByState, 'state');
 
     var margin = {top: 20, right: 20, bottom: 30, left: 50},
         width = 1000 - margin.left - margin.right,
@@ -1153,8 +1250,12 @@ function barChart(data) {
     var g = svg.append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    x.domain(countByState.map(function(d) { return d.state; }));
-    y.domain([0, d3.max(countByState, function(d) { return d.value; })]);
+    x.domain(countByState.map(function (d) {
+        return d.state;
+    }));
+    y.domain([0, d3.max(countByState, function (d) {
+        return d.value;
+    })]);
 
     g.append("g")
         .attr("class", "axis axis--x")
@@ -1163,7 +1264,9 @@ function barChart(data) {
 
     g.append("g")
         .attr("class", "axis axis--y")
-        .call(d3.axisLeft(y).ticks(3).tickFormat(function(d) { return d; }).tickSizeInner([-width]))
+        .call(d3.axisLeft(y).ticks(3).tickFormat(function (d) {
+            return d;
+        }).tickSizeInner([-width]))
         .append("text")
         .attr("transform", "rotate(-90)")
         .attr("y", 6)
@@ -1173,38 +1276,25 @@ function barChart(data) {
     g.selectAll(".bar")
         .data(countByState)
         .enter().append("rect")
-        .attr("x", function(d) { return x(d.state); })
-        .attr("y", function(d) { return y(d.value); })
+        .attr("x", function (d) {
+            return x(d.state);
+        })
+        .attr("y", function (d) {
+            return y(d.value);
+        })
         .attr("width", x.bandwidth())
-        .attr("height", function(d) { return height - y(d.value); })
+        .attr("height", function (d) {
+            return height - y(d.value);
+        })
         .attr("class", "bar")
-        .on("mousemove", function(d) {
+        .on("mousemove", function (d) {
             tooltip
                 .style("left", d3.event.pageX - 50 + "px")
                 .style("top", d3.event.pageY - 70 + "px")
                 .style("display", "inline-block")
                 .html((d.value));
         })
-        .on("mouseout", function(d) { tooltip.style("display", "none");});
+        .on("mouseout", function (d) {
+            tooltip.style("display", "none");
+        });
 }
-
-
-/**
- * Update the map if slider is moved
- */
-// d3.select("#slider").on("input", function() {
-//     addSightingsByYear();
-//
-//     // TODO
-//     // reset the map
-//     //svg.selectAll("path").style('fill', "black");
-//
-//     var currData = aggregationsByYear(initialData);
-//     components.forEach(function (component) {
-//         component(currData)
-//     })
-// });
-//
-// d3.select(self.frameElement).style("height", "675px");
-//
-// window.onload = init();  // magic starts here
