@@ -9,6 +9,7 @@ var intSightingsByYearCountData = {};
 var components = [];
 var sightings = d3.select(null);
 var zoom = true;
+var selectedYear = "";
 
 // color for choropleth map and scatter plot
 var color = d3.scaleThreshold()
@@ -46,6 +47,9 @@ var colorScheme = [
     "#BFBFBF",
     "#BFBFBF"];
 
+// This is for translating the abbreviations
+// to state names in order to have a key for our
+// geojson data / geometries
 var allStates =
     ['Arizona',
     'Alabama',
@@ -136,7 +140,7 @@ var allStates =
                     durationhours: d.durationhours,
                     comments: d.comments,
                     dateposted: d.dateposted
-                    // filtered: false
+                    // filtered: false TODO
                 }
             }
         })  // and associated data in csv file
@@ -157,20 +161,20 @@ function processData(error,results,topo) {
     }
 
     initialData = results;
-
-    //aggregationsByYear(initialData);
+    intSightingsByYearCountData = aggregationsByYear(initialData);
     area_chart(initialData);
     barChart(initialData);
+    var features = topo.features
 
     components = [
-        choropleth(topo), // draw map
+        choropleth(features), // draw map
         scatterplot(onBrush)
     ]
 
     function update() {
         intSightingsByYearCountData = aggregationsByYear(initialData);
         components.forEach(function (component) {
-            component(intSightingsByYearCountData)
+            component(features)
         })
     }
 
@@ -207,6 +211,8 @@ function processData(error,results,topo) {
      * Update the map if slider is moved
      */
     d3.select("#slider").on("input", function() {
+        //get the current year
+        selectedYear = getCurrentYear();
         $( "#selectedStates" ).empty();
         addSightingsByYear();
         update();
@@ -260,6 +266,7 @@ function aggregationsByYear(data) {
     sightingsByYearCountData = aggregations.filter(
         function(d) {
             if(d.key == getCurrentYear()) {
+                //console.log(d)
                 return d;
             }
         }
@@ -274,13 +281,17 @@ function aggregationsByYear(data) {
     });
 
     statesToAdd.forEach(function(name){
-        var emptyState = {'key': name, 'value': { 'avgDurationSecs': 0, 'sightingCountsByState': 0}};
+        var emptyState = {
+            'key': name,
+            'value': {
+                'avgDurationSecs': 0, 'sightingCountsByState': 0
+            }};
         sightingsByYearCountData[0].values.push(emptyState);
     });
 
     // flatten the rolled up values from d3
     var flatAggregations = [];
-    var yearAggrs = sightingsByYearCountData[0].values //
+    var yearAggrs = sightingsByYearCountData[0].values
     for (var i = 0; i < yearAggrs.length; i++){
         var obj = yearAggrs[i];
         var name = obj.key;
@@ -318,7 +329,7 @@ function aggregationsByYear(data) {
  * @param topo
  * @returns {update}
  */
-function choropleth(topo) { //topo
+function choropleth(features) { //topo
     var width = 750;
     var height = 450;
 
@@ -340,8 +351,7 @@ function choropleth(topo) { //topo
 
     // draw the map
     var states = svg.selectAll('path')
-    //.data(features)
-        .data(topo.features)  // bind data to these non-existent objects
+        .data(features)  // bind data to these non-existent objects
         .enter()
         .append('path') // prepare data to be appended to paths
         .attr('d', path) // create them using the svg path generator defined above
@@ -350,54 +360,42 @@ function choropleth(topo) { //topo
 
     var padding = 20;
 
-    // TODO
-    // states.on("click", function (d) {
-    //
-    //     if(zoom) {
-    //         projection.fitExtent([[padding,padding], [width-padding, height-padding]], d);
-    //         path.projection(projection);
-    //     } else {
-    //         projection = d3.geoAlbersUsa()
-    //             .scale([width * 1.25])
-    //             .translate([width / 2, height / 2])
-    //         path.projection(projection);
-    //     }
-    //
-    //     // TODO - issue with map zoom
-    //     states.attr('d', path)
-    //         .data(d, function () {
-    //             return d.state || d.properties.name
-    //         })
-    //         .style('fill', function () {
-    //             //return d.filtered ? '#ddd' : color(d.sightingCountsByState)
-    //             return d.sightingCountsByState === 0 ? '#000' : color(d.sightingCountsByState)
-    //         });
-    //     sightings.attr("cx", function(d) {
-    //         try {
-    //             return projection([d.longitude, d.latitude])[0];
-    //         } catch (e) {
-    //             // do nothing for now
-    //         }
-    //     }).attr("cy", function(d){
-    //         try {
-    //             return projection([d.longitude, d.latitude])[1];
-    //         } catch (e) {
-    //             // do nothing for now
-    //         }
-    //     });
-    //     zoom = !zoom;
-    // });
+    states.on("click", function (d) {
+        //console.log(d)
+        if(zoom) {
+            projection.fitExtent([[padding,padding], [width-padding, height-padding]], d);
+            path.projection(projection);
+        } else {
+            projection = d3.geoAlbersUsa()
+                .scale([width * 1.25])
+                .translate([width / 2, height / 2])
+            path.projection(projection);
+        }
 
+        states.attr('d', path)
 
-    // TODO fix for choropleth / zoom
+        sightings.attr("cx", function(d) {
+            try {
+                return projection([d.longitude, d.latitude])[0];
+            } catch (e) {
+                // do nothing for now
+            }
+        }).attr("cy", function(d){
+            try {
+                return projection([d.longitude, d.latitude])[1];
+            } catch (e) {
+                // do nothing for now
+            }
+        });
+        zoom = !zoom;
+    });
+
     return function update(data) {
         svg.selectAll('path')
-            .data(data, function (d) {
-                return d.state || d.properties.name
-            })
             .style('fill', function (d) {
-                //return d.filtered ? '#ddd' : color(d.sightingCountsByState)
-                return d.sightingCountsByState === 0 ? '#000' : color(d.sightingCountsByState);
+                var sightingCountsByState = getPropertyOfAggrObject(d.properties.name, "sightingCountsByState")
+
+                return sightingCountsByState == 0 ? '#000' : color(sightingCountsByState);
             })
     }
 }
@@ -411,13 +409,13 @@ function addSightingsByYear() {
     d3.selectAll(".sightings").remove();
 
     //get the current year
-    var selectedYear = getCurrentYear();
+    selectedYear = getCurrentYear();
 
     //filter our data: get sightings by year
     var sightingsByYear = initialData.filter(
         function(d) {
-            if(d.country == "us") {
-                return d.year == selectedYear;
+            if(d.country === "us") {
+                return d.year === selectedYear;
             }
         }
     );
@@ -601,15 +599,20 @@ function scatterplot(onBrush) {
 
         svg.selectAll('circle')
             .style("fill", function (d) {
-                if (x(d.avgDurationSecs) >= x0 && x(d.avgDurationSecs) <= x0 + dx && y(d.sightingCountsByState) >= y0 && y(d.sightingCountsByState) <= y0 + dy) {
-                    selectedStates.push(d.state);
+
+                var state = getPropertyOfAggrObject(d.properties.name, "state")
+                var sightingCountsByState = getPropertyOfAggrObject(d.properties.name, "sightingCountsByState")
+                var avgDurationSecs = getPropertyOfAggrObject(d.properties.name, "avgDurationSecs")
+
+                if (x(avgDurationSecs) >= x0 && x(avgDurationSecs) <= x0 + dx && y(sightingCountsByState) >= y0 && y(sightingCountsByState) <= y0 + dy) {
+                    selectedStates.push(state);
                     return "grey"; }
                 else {
                     return "none";
                 }
             });
 
-        var selectedYear = getCurrentYear();
+        selectedYear = getCurrentYear();
         var sightingsByYear = initialData.filter(
             function(d) {
                 if(d.country == "us" && d.year == selectedYear) {
@@ -630,10 +633,10 @@ function scatterplot(onBrush) {
             svg.selectAll('circle')
                 .style("fill", "none");
 
-            var selectedYear = getCurrentYear();
+            selectedYear = getCurrentYear();
             var sightingsByYear = initialData.filter(
                 function(d) {
-                    if(d.country == "us" && d.year == selectedYear ) {
+                    if(d.country === "us" && d.year === selectedYear ) {
                         return true
                     }
                 }
@@ -652,9 +655,13 @@ function scatterplot(onBrush) {
 
             svg.selectAll('circle')
                 .style("fill", function (d) {
-                    if (x(d.avgDurationSecs) >= x0 && x(d.avgDurationSecs) <= x0 + dx && y(d.sightingCountsByState) >= y0 && y(d.sightingCountsByState) <= y0 + dy) {
-                        if($.inArray(d.state, selectedStates)) {
-                            selectedStates.push(d.state);
+                    var avgDurationSecs = getPropertyOfAggrObject(d.properties.name, "avgDurationSecs")
+                    var sightingCountsByState = getPropertyOfAggrObject(d.properties.name, "sightingCountsByState")
+                    var state = getPropertyOfAggrObject(d.properties.name, "state")
+
+                    if (x(avgDurationSecs) >= x0 && x(avgDurationSecs) <= x0 + dx && y(sightingCountsByState) >= y0 && y(sightingCountsByState) <= y0 + dy) {
+                        if($.inArray(state, selectedStates)) {
+                            selectedStates.push(state);
                         }
                         return "grey";
                     } else {
@@ -662,12 +669,12 @@ function scatterplot(onBrush) {
                     }
                 });
 
-            var selectedYear = getCurrentYear();
+            selectedYear = getCurrentYear();
             var sightingsByYear = initialData.filter(
                 function(d) {
-                    if(d.country == "us" && d.year == selectedYear) {
+                    if(d.country === "us" && d.year === selectedYear) {
                         for (var i=0; i < selectedStates.length ; i++) {
-                            if (selectedStates[i]== d.state) {
+                            if (selectedStates[i]=== d.state) {
                                 return true;
                             }
                         }
@@ -675,7 +682,6 @@ function scatterplot(onBrush) {
                 }
             );
 
-            // TODO HERE
             var unique = [...new Set(sightingsByYear.map(item => item.stateAbbr))];
             unique.forEach(function(nameAbbr) {
                 $("#selectedStates").append( " " + nameAbbr ) ;
@@ -688,10 +694,12 @@ function scatterplot(onBrush) {
     // TODO update with scatterplot circle fill
     return function update(data) {
         x.domain(d3.extent(data, function (d) {
-            return d.avgDurationSecs
+            return getPropertyOfAggrObject(d.properties.name, "avgDurationSecs")
+            //return d.avgDurationSecs
         })).nice()
         y.domain(d3.extent(data, function (d) {
-            return d.sightingCountsByState
+            return getPropertyOfAggrObject(d.properties.name, "sightingCountsByState")
+            //return d.sightingCountsByState
         })).nice()
 
         gx.call(xAxis)
@@ -704,22 +712,45 @@ function scatterplot(onBrush) {
             .attr('x', 0)
             .attr('width', swidth)
             .merge(bgRect)
-            .attr('y', function (d) { return y(d[1]) })
-            .attr('height', function (d) { return y(d[0]) - y(d[1]) })
-            .style('fill', function (d) { return color(d[0]) })
+            .attr('y', function (d) {
+                return y(d[1])
+            })
+            .attr('height', function (d) {
+                return y(d[0]) - y(d[1])
+            })
+            .style('fill', function (d) {
+                return color(d[0])
+            })
 
         var circle = svg.selectAll('circle')
-            .data(data, function (d) { return d.state })
+            .data(data, function (d) {
+                return getPropertyOfAggrObject(d.properties.name, "state")
+                //return d.state
+            })
         circle.exit().remove()
         circle.enter().append('circle')
             .attr('r', 4)
             .style('stroke', '#fff')
             .merge(circle)
-            .attr('cx', function (d) { return x(d.avgDurationSecs) })
-            .attr('cy', function (d) { return y(d.sightingCountsByState) })
-            .style('fill', function (d) { return color(d.sightingCountsByState) })
-            .style('opacity', function (d) { return d.filtered ? 0.5 : 1 })
-            .style('stroke-width', function (d) { return d.filtered ? 1 : 2 })
+            .attr('cx', function (d) {
+
+                return x(getPropertyOfAggrObject(d.properties.name, "avgDurationSecs"))
+            })
+            .attr('cy', function (d) {
+                return y(getPropertyOfAggrObject(d.properties.name, "sightingCountsByState"))
+            })
+            .style('fill', function (d) {
+                return color(getPropertyOfAggrObject(d.properties.name, "sightingCountsByState"))
+            })
+            //TODO
+            .style('opacity', function (d) {
+                return getPropertyOfAggrObject(d.properties.name, "filtered") ? 0.5 : 1
+                //return d.filtered ? 0.5 : 1
+            })
+            .style('stroke-width', function (d) {
+                return getPropertyOfAggrObject(d.properties.name, "filtered") ? 1 : 2
+                //return d.filtered ? 1 : 2
+            })
     }
 }
 
@@ -731,6 +762,18 @@ function getCurrentYear() {
     return document.getElementById("slider").value;
 }
 
+/**
+ * This function is needed in order to index the aggregated
+ * data so that we are separating the geojson from our data.
+ * @returns {desired property}
+ */
+function getPropertyOfAggrObject(stateName, propName) {
+    var result = intSightingsByYearCountData.filter(function(obj) {
+        return obj.state === stateName;
+    });
+    var prop = result.map(a => a[propName]);
+    return prop[0]
+}
 
 
 /**************************************************************
