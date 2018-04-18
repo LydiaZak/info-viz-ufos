@@ -11,10 +11,16 @@ var sightings = d3.select(null);
 var zoom = true;
 var selectedYear = "";
 
+
+var legend_labels = ["< 50", "50+", "150+", "250+"];
+var colorDomain = [50, 150, 250];
+var ext_color_domain = [0, 50, 150, 250]
+var colorRange = ['#807dba', '#6a51a3', '#54278f', '#3f007d'];
+
 // color for choropleth map and scatter plot
 var color = d3.scaleThreshold()
-    .domain([50, 150, 250])
-    .range(['#807dba', '#6a51a3', '#54278f', '#3f007d']);
+    .domain(colorDomain)
+    .range(colorRange);
 
 var mapTooltip = d3.select("body").append("div")
     .attr("class", "tooltipMap")
@@ -104,6 +110,62 @@ var allStates =
     'Wisconsin',
     'Wyoming'
 ];
+
+var allStates =
+    ['Arizona',
+        'Alabama',
+        'Alaska',
+        'Arizona',
+        'Arkansas',
+        'California',
+        'Colorado',
+        'Connecticut',
+        'Delaware',
+        'Florida',
+        'Georgia',
+        'Hawaii',
+        'Idaho',
+        'Illinois',
+        'Indiana',
+        'Iowa',
+        'Kansas',
+        'Kentucky',
+        'Kentucky',
+        'Louisiana',
+        'Maine',
+        'Maryland',
+        'Massachusetts',
+        'Michigan',
+        'Minnesota',
+        'Mississippi',
+        'Missouri',
+        'Montana',
+        'Nebraska',
+        'Nevada',
+        'New Hampshire',
+        'New Jersey',
+        'New Mexico',
+        'New York',
+        'North Carolina',
+        'North Dakota',
+        'Ohio',
+        'Oklahoma',
+        'Oregon',
+        'Pennsylvania',
+        'Rhode Island',
+        'South Carolina',
+        'South Dakota',
+        'Tennessee',
+        'Texas',
+        'Utah',
+        'Vermont',
+        'Virginia',
+        'Washington',
+        'West Virginia',
+        'Wisconsin',
+        'Wyoming'
+    ];
+
 
 
 /**
@@ -339,8 +401,7 @@ function choropleth(features) { //topo
         .scale([width * 1.25])
         .translate([width / 2, height / 2])
 
-    // convert GeoJSON to SVG paths.
-    // tell path generator to use albersUsa projection
+    // convert GeoJSON to SVG paths. Tell path generator to use albersUsa projection
     path = d3.geoPath().projection(projection)
 
     // create svg variable for map
@@ -348,6 +409,29 @@ function choropleth(features) { //topo
         .append('svg')
         .attr('width', width)
         .attr('height', height)
+
+
+    // adding legend for our Choropleth
+    var legend = svg.selectAll("g.legend")
+        .data(ext_color_domain)
+        .enter().append("g")
+        .attr('transform', 'translate(650,0)')
+        .attr("class", "legend");
+
+    var ls_w = 18, ls_h = 18;
+
+    legend.append("rect")
+        .attr("x", 18)
+        .attr("y", function(d, i){ return height - (i*ls_h) - 2*ls_h;})
+        .attr("width", ls_w)
+        .attr("height", ls_h)
+        .style("fill", function(d, i) { return color(d); })
+        .style("opacity", 0.8);
+
+    legend.append("text")
+        .attr("x", 50)
+        .attr("y", function(d, i){ return height - (i*ls_h) - ls_h - 4;})
+        .text(function(d, i){ return legend_labels[i]; });
 
     // draw the map
     var states = svg.selectAll('path')
@@ -668,6 +752,7 @@ function scatterplot(onBrush) {
                         return "none";
                     }
                 });
+
 
             selectedYear = getCurrentYear();
             var sightingsByYear = initialData.filter(
@@ -1147,7 +1232,7 @@ function barChart(data) {
         });
     }
 
-    var countByState = _.sortBy(countByState, 'state' );
+    var countByState = _.sortBy(countByState, 'state');
 
     var margin = {top: 20, right: 20, bottom: 30, left: 50},
         width = 1000 - margin.left - margin.right,
@@ -1165,8 +1250,12 @@ function barChart(data) {
     var g = svg.append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-    x.domain(countByState.map(function(d) { return d.state; }));
-    y.domain([0, d3.max(countByState, function(d) { return d.value; })]);
+    x.domain(countByState.map(function (d) {
+        return d.state;
+    }));
+    y.domain([0, d3.max(countByState, function (d) {
+        return d.value;
+    })]);
 
     g.append("g")
         .attr("class", "axis axis--x")
@@ -1175,7 +1264,9 @@ function barChart(data) {
 
     g.append("g")
         .attr("class", "axis axis--y")
-        .call(d3.axisLeft(y).ticks(3).tickFormat(function(d) { return d; }).tickSizeInner([-width]))
+        .call(d3.axisLeft(y).ticks(3).tickFormat(function (d) {
+            return d;
+        }).tickSizeInner([-width]))
         .append("text")
         .attr("transform", "rotate(-90)")
         .attr("y", 6)
@@ -1185,17 +1276,25 @@ function barChart(data) {
     g.selectAll(".bar")
         .data(countByState)
         .enter().append("rect")
-        .attr("x", function(d) { return x(d.state); })
-        .attr("y", function(d) { return y(d.value); })
+        .attr("x", function (d) {
+            return x(d.state);
+        })
+        .attr("y", function (d) {
+            return y(d.value);
+        })
         .attr("width", x.bandwidth())
-        .attr("height", function(d) { return height - y(d.value); })
+        .attr("height", function (d) {
+            return height - y(d.value);
+        })
         .attr("class", "bar")
-        .on("mousemove", function(d) {
+        .on("mousemove", function (d) {
             tooltip
                 .style("left", d3.event.pageX - 50 + "px")
                 .style("top", d3.event.pageY - 70 + "px")
                 .style("display", "inline-block")
                 .html((d.value));
         })
-        .on("mouseout", function(d) { tooltip.style("display", "none");});
+        .on("mouseout", function (d) {
+            tooltip.style("display", "none");
+        });
 }
