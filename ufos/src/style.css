@@ -267,3 +267,16 @@ path:hover { stroke-width: 3px; }
 .legend {
     font-size: 12px;
 }
+
+/* ********************************
+    SCATTER PLOT
+ *********************************/
+
+#avgDur {
+    margin-bottom: 10pt;
+    margin-right: 20pt;
+    text-align: right;
+    font-weight: bold;
+    font-size: 10px;
+    color: #000000;
+}
