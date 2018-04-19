@@ -602,7 +602,7 @@ function updateHeaders(year, data){
  * SCATTER PLOT
  *************************************************************/
 function scatterplot(onBrush) {
-    var margin = { top: 10, right: 15, bottom: 40, left: 75 }
+    var margin = { top: 10, right: 52, bottom: 40, left: 75 }
     var swidth = 380 - margin.left - margin.right;
     var sheight = 250 - margin.top - margin.bottom;
 
@@ -643,13 +643,14 @@ function scatterplot(onBrush) {
     var gy = svg.append('g')
         .attr('class', 'y axis')
 
-    gx.append('text')
+    /*gx.append('text')
         .attr('x', swidth)
         .attr('y', 35)
         .style('text-anchor', 'end')
         .style('fill', '#000')
         .style('font-weight', 'bold')
-        .text('average duration (seconds)')
+        .text('average duration (seconds)')*/
+
 
     gy.append('text')
         .attr('transform', 'rotate(-90)')
@@ -788,6 +789,13 @@ function scatterplot(onBrush) {
         })).nice()
 
         gx.call(xAxis)
+            .selectAll("text")
+            .attr("y", 0)
+            .attr("x", 9)
+            .attr("dy", ".35em")
+            .attr("transform", "rotate(32)")
+            .style("text-anchor", "start");
+
         gy.call(yAxis)
 
         var bgRect = bg.selectAll('rect')
