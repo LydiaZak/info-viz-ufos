@@ -602,7 +602,7 @@ function updateHeaders(year, data){
  * SCATTER PLOT
  *************************************************************/
 function scatterplot(onBrush) {
-    var margin = { top: 10, right: 52, bottom: 40, left: 75 }
+    var margin = { top: 10, right: 52, bottom: 33, left: 75 }
     var swidth = 380 - margin.left - margin.right;
     var sheight = 250 - margin.top - margin.bottom;
 
