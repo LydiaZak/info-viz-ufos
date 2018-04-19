@@ -75,8 +75,8 @@
             <div class="container">
                 <h3>The Data</h3>
                 <p>
-                    The dataset is sourced from the National UFO Research Center. It contains over
-                    80,000 reports of UFO sightings over the last century, and it was geolocated and time standardized
+                    The data set is sourced from the National UFO Research Center. It contains over
+                    80,000 reports of UFO sightings over the last century, and it was geo-located and time standardized
                     by Sigmond Axel. The data contains city (categorical), state (categorical), time (quantitative),
                     description, and duration (quantitative) of each sighting and gives detailed descriptions of each
                     sighting per the written sighting report. It is important to note for the data integrity that each
@@ -102,12 +102,12 @@
             <div class="container">
                 <p>The number of reported UFO Sightings has drastically increased in the last 20 years, nearly tripling since
                     2001. What areas in the country are most likely to have UFO sightings? How have the sightings
-                    changed year over year? What are common shapes or descriptions? In attempt to answer these questions,
-                    we've created data visualizations using D3 in order to better understand these questions.<br/><br/>
+                    changed year over year? What are common shapes or descriptions? We've created data visualizations using
+                    D3 in order to better understand these questions.<br/><br/>
 
                     The map, scatter plot and pie chart shows details on UFO sightings during <span id="yearText"></span>.
-                    Move the slider in order to update the map, plot, and pie. Hover over a dot to see the location,
-                    shape of the object, and description of the sightings. The chloropleth map is based on the number of sightings reported.
+                    Move the slider in order to update the map, plot, and pie. Hover over a point to see the location,
+                    shape of the object, and description of the sightings. The choropleth map is based on the number of sightings reported.
                     Click on a state to zoom in on the sightings.
                 </p>
             </div>
@@ -176,13 +176,12 @@
             <div class="container">
                 <h3>Task Analysis</h3>
                 <p>
-                    Upon deciding to use the the National UFO Report Center's dataset for our project, we conducted a
-                    phone interview with Davenport to help us better understand his website and dataset better.
+                    Upon deciding to use the the National UFO Report Center's data set for our project, we conducted a
+                    phone interview with Peter Davenport to help us better understand his website and data set.
                     The current iteration of the website was set up in 1995 and hosts approximately 145,000 alleged
                     sightings, with a noticeable uptick since the option to report a sighting via the internet became
                     available. Currently there is a weekly UFO update on Coast to Coast AM radio, and the website boasts
-                    many details with images of suspected sightings. However, there are no visualizations of the
-                    dataset as a whole, and none that explore trends using interactivity. The interview informed
+                    many details with images of suspected sightings. The interview informed
                     us when deciding which tasks were most important for us to satisfy in our visualization:
                 </p>
                 <div class="table-caption">Task Analysis</div>
@@ -266,25 +265,25 @@
                     and functionality changes from our initial idea. Our final visualization shows the data in many different
                     ways, all including interactivity to different degrees, which allows the user to decide which path
                     through the story they want to take. Our first visualization shows the number of reporting sightings
-                    over the history of our dataset; this is the highest level of looking at the data that we encoded.
+                    over the history of our data set; this is the highest level of looking at the data that we encoded.
                     Our next visualization shows the reporting sightings per year and allows the user to zoom in and
                     brush the data that they are interested in seeing; there are two ways to brush down the data;
                     on the time series and on the chart itself. Our final visualization shows the geo-location of each
                     individual sighting during the selected year. The user selects the year using the slider above the
                     map, which populates using points in the exact geo-location. The choropleth map shows the number
                     of sightings, which links in color scheme to the graph to the right. In this graph, the points
-                    indicate states, and the axis reflect the number of sightings versus average duration. The map
+                    indicate states, and the axes reflect the number of sightings versus average duration. The map
                     also has an on-click feature, which allows the user to drill down to a state level for more
-                    discernibility with the data points and ease of access in reading and using the tooltip. The donut
+                    discernibility with the data points and ease of access in reading and using the tool tip. The donut
                     plot shows the proportion of shapes sighted, either by year on a national level, using the brushed
                     data from the scatter plot, or the state data, depending on how the user chooses to interact.<br/><br/>
 
                     This visualization was built using HTML, CSS, JavaScript, and several open-source projects
                     including <a href="https://d3js.org/">D3 v4</a>, <a href="https://github.com/d3/d3-queue">d3-queue</a>,
-                    <a href="https://jquery.com/">jQuery</a>
+                    <a href="https://jquery.com/">jQuery</a>,
                     <a href="https://momentjs.com/">Moment JS</a>,
                     <a href="https://github.com/topojson/topojson">topojson</a>,
-                    <a hred="http://underscorejs.org/">Underscore JS</a>, <a href="https://getbootstrap.com/">Bootstrap</a>,
+                    <a href="http://underscorejs.org/">Underscore JS</a>, <a href="https://getbootstrap.com/">Bootstrap</a>,
                     and <a href="https://nodejs.org/">nodejs</a>.
 
                 </p>
@@ -296,14 +295,14 @@
             <div class="container">
                 <h3>Summary</h3>
                 <p>
-                    Through the data collection efforts by the NUFORC, who has made this data publicly available data,
+                    Through the data collection efforts by the NUFORC, which has made this data publicly available,
                     we have the tools to understand the areas of the country that are most likely to have UFO sightings
                     cumulatively and year over year, the most common UFO shape description, and how duration of the
                     sighting comes into the picture in order to help people formulate their own opinions. For future
                     enhancements, we'd like to associate historical weather data with the dates of the alleged UFO sightings.
                     Additionally, plotting sources of red flags such as to help identify locations of  airport, lighthouse,
                     and government research centers could help validate the sighting. The biggest challenge at the moment
-                    is acquiring a suitable dataset containing this information in a reasonable format.
+                    is acquiring a suitable data set containing this information in a reasonable format.
                 </p>
             </div>
         </div>
@@ -314,7 +313,7 @@
                 <h3>Demo</h3>
                 <p>
                     If you would like to see a demo video with instructions on how to interact with our visualizations, please click
-                    <a ahref="https://www.youtube.com/edit?o=U&video_id=pvVv4dxeYa0">here</a>.
+                    <a href="https://youtu.be/-raW8d4jiVM">here</a>.
                 </p>
             </div>
         </div>
